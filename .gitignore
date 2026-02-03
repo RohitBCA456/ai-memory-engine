@@ -1,0 +1,7 @@
+# Ignore all node_modules in any service/subfolder
+**/node_modules/
+
+# Ignore all .env files (and variants) in any service/subfolder
+**/.env
+**/.env.local
+**/.env.*.local
