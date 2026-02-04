@@ -21,5 +21,5 @@ app.use(
 app.use("/", memeoryRouter);
 
 app.listen(process.env.PORT, () => {
-  console.log(`server running on port: ${process.env.PORT}`);
+  console.log(`Memory Service is running on port: ${process.env.PORT}`);
 });

@@ -5,14 +5,38 @@ import {
   generateScoreForLongTerm,
   generateScoreForShortTerm,
 } from "../services/scoring.service.js";
+import { publishScoreGenerated } from "../adapters/event.publisher.js";
 
 export const consumeMemoryEmbedding = asyncHandler(async () => {
+
   await consumeEvent(EVENTS.EMBEDDING_CREATED, async (data) => {
+
     if (data && data.embedding) {
+      
       if (data.type === "short-term") {
-        await generateScoreForShortTerm(data.userId, data.embedding);
+        const score = await generateScoreForShortTerm(
+          data.userId,
+          data.embedding,
+        );
+
+        const memory = {
+          ...data,
+          score,
+        };
+
+        await publishScoreGenerated(EVENTS.MEMORY_SCORED, memory);
       } else {
-        await generateScoreForLongTerm(data.userId, data.embedding);
+        const score = await generateScoreForLongTerm(
+          data.userId,
+          data.embedding,
+        );
+
+        const memory = {
+          ...data,
+          score,
+        };
+
+        await publishScoreGenerated(EVENTS.MEMORY_SCORED, memory);
       }
     } else {
       console.log("Fields are missing.");

@@ -21,5 +21,5 @@ app.use(
 await consumeMemoryEmbedding();
 
 app.listen(process.env.PORT, () => {
-  console.log(`server running at port : ${process.env.PORT}`);
+  console.log(`Scoring Service is running at port : ${process.env.PORT}`);
 });
