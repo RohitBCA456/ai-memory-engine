@@ -6,6 +6,8 @@ import { publishgMemoryEmbedding } from "../adapters/event.publisher.js";
 export async function consumeMemoryIngest() {
   await consumeEvent(EVENTS.MEMORY_INGESTED, async (data) => {
 
+    console.log("Received memory for embedding:", data);
+
     if (data && data.content) {
       const embeddingArray = await getEmbedding(data.content);
 

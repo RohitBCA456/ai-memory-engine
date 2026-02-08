@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { connectToMongoDB } from "./src/connectors/mongodb.connector.js";
-import mongoose from "mongoose";
-import { getMemoryModel } from "../../shared/models/memory.model.js";
-import { connectToRedis } from "./src/connectors/redis.connector.js";
+import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
+import { connectToRedis } from "../../shared/connectors/redis.connector.js";
+import { consumePersistMemory } from "./src/consumers/persist.consumer.js";
 
 dotenv.config();
 
@@ -23,7 +22,7 @@ app.use(
 await connectToMongoDB();
 await connectToRedis();
 
-export const MemoryModel = await getMemoryModel(mongoose);
+await consumePersistMemory();
 
 app.listen(process.env.PORT, () => {
   console.log(`Storage Service is running on port ${process.env.PORT}`);

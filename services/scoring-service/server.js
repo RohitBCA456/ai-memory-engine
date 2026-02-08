@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { consumeMemoryEmbedding } from "./src/consumers/memory.consumer.js";
+import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
+import { connectToRedis } from "../../shared/connectors/redis.connector.js";
 
 dotenv.config();
 
@@ -17,6 +19,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+await connectToMongoDB();
+await connectToRedis();
 
 await consumeMemoryEmbedding();
 

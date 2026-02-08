@@ -1,6 +1,7 @@
 import { MemoryModel } from "../models/memory.model.js";
 
 export async function findSimilarLongTermMemory(userId, inputVector) {
+
   return await MemoryModel.aggregate([
     {
       $vectorSearch: {

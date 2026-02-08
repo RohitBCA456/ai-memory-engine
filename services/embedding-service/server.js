@@ -21,5 +21,5 @@ app.use(
 await consumeMemoryIngest();
 
 app.listen(process.env.PORT, () => {
-  console.log(`server is running on port : ${process.env.PORT}`);
+  console.log(`Embedding Service is running on port : ${process.env.PORT}`);
 });

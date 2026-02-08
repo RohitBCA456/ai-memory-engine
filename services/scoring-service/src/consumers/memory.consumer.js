@@ -11,6 +11,8 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
 
   await consumeEvent(EVENTS.EMBEDDING_CREATED, async (data) => {
 
+    console.log("Received memory embedding for scoring:", data);
+
     if (data && data.embedding) {
       
       if (data.type === "short-term") {
@@ -18,6 +20,8 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
           data.userId,
           data.embedding,
         );
+
+        console.log("Generated score for short-term memory:", score);
 
         const memory = {
           ...data,
@@ -30,6 +34,8 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
           data.userId,
           data.embedding,
         );
+
+        console.log("Generated score for long-term memory:", score);
 
         const memory = {
           ...data,
