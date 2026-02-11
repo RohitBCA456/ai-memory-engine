@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
 import { connectToRedis } from "../../shared/connectors/redis.connector.js";
 import { consumePersistMemory } from "./src/consumers/persist.consumer.js";
+// import { clearQueue } from "../event-bus/src/rabbitmq.js";
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ app.use(
 
 await connectToMongoDB();
 await connectToRedis();
+
+// await clearQueue();
 
 await consumePersistMemory();
 

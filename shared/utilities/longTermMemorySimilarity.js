@@ -16,6 +16,7 @@ export async function findSimilarLongTermMemory(userId, inputVector) {
 
     {
       $project: {
+        _id: 1,
         score: { $meta: "vectorSearchScore" },
         frequency: 1,
       },

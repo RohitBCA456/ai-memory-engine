@@ -10,6 +10,8 @@ export const publishScoreGenerated = asyncHandler(async (event, memory) => {
     content: memory.content,
     type: memory.type,
     embedding: memory.embedding,
-    score: memory.score,
+    score: memory.scoreData?.score || memory.score,
+    memoryId: memory.scoreData?.memoryId,
+    frequency: memory.scoreData?.frequency,
   });
 });
