@@ -10,10 +10,12 @@ export const storeToRedis = asyncHandler(async (data) => {
     content: data.content,
     type: data.type,
     embedding: vectorBuffer,
-    score: data.score.toString(),
+    score: (Number(data.score) || 0).toString(),
     userId: data.userId,
     createdAt: Date.now().toString(),
   });
 
   await redisClient.expire(key, 60 * 60 * 24);
+
+  return key;
 });

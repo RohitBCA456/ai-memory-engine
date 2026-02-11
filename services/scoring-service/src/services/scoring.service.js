@@ -3,14 +3,12 @@ import { findSimilarLongTermMemory } from "../../../../shared/utilities/longTerm
 import { findSimilarShortTerm } from "../../../../shared/utilities/shortTermMemorySimilarity.js";
 
 export const generateScoreForLongTerm = asyncHandler(
-  async (userId, embedding) => {
-    const result = await findSimilarLongTermMemory(userId, embedding);
+  async (userId, text) => {
+    const result = await findSimilarLongTermMemory(userId, text);
 
     if (!result || result.length === 0) {
       return {
         score: 0,
-        memoryId: null,
-        frequency: 0,
       };
     }
 
@@ -27,9 +25,9 @@ export const generateScoreForLongTerm = asyncHandler(
 );
 
 
-export const generateScoreForShortTerm = asyncHandler(
-  async (userId, embedding) => {
-    const result = await findSimilarShortTerm(userId, embedding);
-    return result.length > 0 ? parseFloat(result[0].value.score) : 1.0;
-  },
-);
+
+export const generateScoreForShortTerm = asyncHandler(async (userId, text) => {
+  const result = await findSimilarShortTerm(userId, text);
+  
+  return result.length > 0 ? result[0].score : 1.0; 
+});

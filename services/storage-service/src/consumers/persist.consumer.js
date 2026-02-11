@@ -10,7 +10,7 @@ export const consumePersistMemory = asyncHandler(async () => {
     console.log("Received scored memory:", data);
 
     if (data.type === "long-term") {
-      if (data.score < 0.9) {
+      if (data.score < 0.8) {
         console.log("New long-term memory detected. Storing in MongoDB.");
         const result = await storeToMongoDB(data);
         return result._id;
@@ -23,7 +23,7 @@ export const consumePersistMemory = asyncHandler(async () => {
           },
           {
             $set: {
-              score: data.score,
+              lastSeenAt: new Date(),
             },
             $inc: { frequency: 1 },
           },
@@ -31,9 +31,9 @@ export const consumePersistMemory = asyncHandler(async () => {
       }
 
     } else if (data.type === "short-term") {
-      if (data.score > 0.15) {
+      if (data.score > 0.6) {
         console.log("New short-term context detected. Storing in Redis.");
-        await storeToRedis(data);
+        const key = await storeToRedis(data);
       } else {
         console.log("Similar short-term context found. Skipping.");
       }
