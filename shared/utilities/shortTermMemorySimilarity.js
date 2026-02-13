@@ -17,6 +17,7 @@ export async function findSimilarShortTerm(userId, text) {
     });
 
     return result.documents.map((doc) => ({
+      memoryId: doc.id,
       content: doc.value.content,
       score: parseFloat(doc.value.vector_dist) || 0,
     }));

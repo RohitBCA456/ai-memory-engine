@@ -13,24 +13,21 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
 
     if (data && data.embedding) {
       if (data.type === "short-term") {
-        const score = await generateScoreForShortTerm(
-          data.userId,
-          data.content,
-        );
+        const score = await generateScoreForShortTerm(data.userId, data.content);
 
         console.log("Generated score for short-term memory:", score);
 
         const memory = {
           ...data,
-          score,
+          scoreData: {
+            memoryId: score.memoryId,
+            score: score.score,
+          },
         };
 
         await publishScoreGenerated(EVENTS.MEMORY_SCORED, memory);
       } else {
-        const score = await generateScoreForLongTerm(
-          data.userId,
-          data.content,
-        );
+        const score = await generateScoreForLongTerm(data.userId, data.content);
 
         console.log("Generated score for long-term memory:", score);
 

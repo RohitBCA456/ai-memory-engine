@@ -7,9 +7,10 @@ export const publishScoreGenerated = asyncHandler(async (event, memory) => {
   await publishEvent(event, {
     userId: memory.userId,
     content: memory.content,
+    correlationId: memory.correlationId,
     type: memory.type,
     embedding: memory.embedding,
-    score: memory.scoreData.score,
+    score: memory.scoreData?.score,
     memoryId: memory.scoreData?.memoryId,
     frequency: memory.scoreData?.frequency,
   });
