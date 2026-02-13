@@ -2,7 +2,7 @@ import express from "express";
 import { memeoryRouter } from "./src/routes/memory.routes.js";
 import dotenv from "dotenv";
 import cors from "cors";
-import { consumeMemoryId } from "./consumers/memoryId.consumer.js";
+import { consumeMemoryId } from "./src/consumers/memoryId.consumer.js";
 
 dotenv.config({ path: "./.env" });
 
