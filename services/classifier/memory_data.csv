@@ -1,0 +1,601 @@
+text,label
+"My favorite color is emerald green.",long-term
+"I was born in Mumbai in 1998.",long-term
+"My dog's name is Bruno and he is a golden retriever.",long-term
+"I work as a senior backend developer at a fintech company.",long-term
+"I am allergic to peanuts and shellfish.",long-term
+"My sister is currently studying medicine in London.",long-term
+"I am building a notification engine using RabbitMQ.",long-term
+"My primary coding language is JavaScript.",long-term
+"I live in a small apartment in the suburbs.",long-term
+"I visited Japan back in 2022 for two weeks.",long-term
+"My mother's birthday is on the 15th of August.",long-term
+"I am currently learning how to use MongoDB vector search.",long-term
+"I graduated from the University of Delhi with a CS degree.",long-term
+"I prefer dark mode in my IDE.",long-term
+"I have a goal to run a half-marathon next year.",long-term
+"My car is a white Tesla Model 3.",long-term
+"I am a vegetarian and have been for five years.",long-term
+"I use a MacBook Pro for my daily work.",long-term
+"My best friend's name is Rahul.",long-term
+"I enjoy hiking on the weekends.",long-term
+"I am currently working on an AI memory engine project.",long-term
+"My favorite food is homemade pasta.",long-term
+"I grew up in a very small town in Himachal Pradesh.",long-term
+"I am learning French on Duolingo every day.",long-term
+"My office is located in the downtown area.",long-term
+"I started my career as a junior web designer.",long-term
+"I am planning to buy a house in the next three years.",long-term
+"My father is a retired bank manager.",long-term
+"I love listening to jazz while I code.",long-term
+"I have two younger brothers.",long-term
+"I am building a startup called DockerizeAI.",long-term
+"My go-to coffee order is a flat white.",long-term
+"I am scared of heights but love flying.",long-term
+"I play the guitar in my free time.",long-term
+"I am a fan of the Manchester United football club.",long-term
+"I write technical blogs on Medium.",long-term
+"My phone number ends in 4567.",long-term
+"I am interested in learning Rust in the future.",long-term
+"I have a passion for sustainable energy.",long-term
+"I am saving money for a trip to Iceland.",long-term
+"My favorite book is The Alchemist.",long-term
+"I use VS Code as my primary code editor.",long-term
+"I am a morning person and wake up at 6 AM.",long-term
+"I have a LinkedIn profile for my professional networking.",long-term
+"I prefer working from home rather than the office.",long-term
+"I am a citizen of India.",long-term
+"I have a master's degree in Data Science.",long-term
+"I enjoy watching sci-fi movies on Netflix.",long-term
+"I am currently single and living alone.",long-term
+"My dream is to travel the world while working remotely.",long-term
+"Can you summarize what we just discussed?",short-term
+"Rewrite the last code block using Python.",short-term
+"Explain that again but in simpler terms.",short-term
+"What was the first thing I asked you in this chat?",short-term
+"Can you fix the bug in the code above?",short-term
+"Tell me more about the point you just made.",short-term
+"Translate that last sentence into Spanish.",short-term
+"Summarize the context of our current conversation.",short-term
+"Can you make the last explanation shorter?",short-term
+"What do you think about the idea I just shared?",short-term
+"Give me an example based on what we are talking about.",short-term
+"Could you repeat that last part?",short-term
+"Format the previous response as a table.",short-term
+"Can you check if there are any typos in the text above?",short-term
+"What is the main takeaway from this conversation so far?",short-term
+"Elaborate on the third bullet point from the last list.",short-term
+"Can you provide a code snippet for what you just explained?",short-term
+"What did you mean by that last word?",short-term
+"Ignore my last prompt and focus on this one.",short-term
+"Can you combine the last two points into one paragraph?",short-term
+"How does this relate to the previous topic?",short-term
+"Can you clarify the last paragraph?",short-term
+"Turn the last response into a list of steps.",short-term
+"Give me a pros and cons list for the last suggestion.",short-term
+"What was the result of the last calculation?",short-term
+"Continue from where you left off.",short-term
+"Can you rephrase the last sentence to be more professional?",short-term
+"What is the definition of the term you used earlier?",short-term
+"Can you provide more details on the last example?",short-term
+"Is there another way to explain the last concept?",short-term
+"How would you implement the last solution in Node.js?",short-term
+"Can you list the key points from our current session?",short-term
+"What are the implications of the last statement?",short-term
+"Can you provide a summary of the last 10 minutes of chat?",short-term
+"Make the last response more concise.",short-term
+"Can you explain the logic behind the last code snippet?",short-term
+"Are there any alternatives to the last approach?",short-term
+"Can you expand on the last idea?",short-term
+"What is the context of the word 'it' in your last reply?",short-term
+"Can you proofread the last paragraph I wrote?",short-term
+"Provide a summary of the current dialogue.",short-term
+"Can you rewrite the last function to be more efficient?",short-term
+"What was the context of my very first question here?",short-term
+"Can you add more comments to the code above?",short-term
+"Explain the pros of the last method you mentioned.",short-term
+"Can you give me a summary of our chat history for today?",short-term
+"What are the main arguments in the last section?",short-term
+"Can you provide a counter-argument to the last point?",short-term
+"Simplify the last technical explanation.",short-term
+"Can you visualize the last process for me?",short-term
+"My favorite color is emerald green.",long-term
+"I was born in Mumbai in 1998.",long-term
+"My dog's name is Bruno and he is a golden retriever.",long-term
+"I work as a senior backend developer at a fintech company.",long-term
+"I am allergic to peanuts and shellfish.",long-term
+"My sister is currently studying medicine in London.",long-term
+"I am building a notification engine using RabbitMQ.",long-term
+"My primary coding language is JavaScript.",long-term
+"I live in a small apartment in the suburbs.",long-term
+"I visited Japan back in 2022 for two weeks.",long-term
+"My mother's birthday is on the 15th of August.",long-term
+"I am currently learning how to use MongoDB vector search.",long-term
+"I graduated from the University of Delhi with a CS degree.",long-term
+"I prefer dark mode in my IDE.",long-term
+"I have a goal to run a half-marathon next year.",long-term
+"My car is a white Tesla Model 3.",long-term
+"I am a vegetarian and have been for five years.",long-term
+"I use a MacBook Pro for my daily work.",long-term
+"My best friend's name is Rahul.",long-term
+"I enjoy hiking on the weekends.",long-term
+"I am currently working on an AI memory engine project.",long-term
+"My favorite food is homemade pasta.",long-term
+"I grew up in a very small town in Himachal Pradesh.",long-term
+"I am learning French on Duolingo every day.",long-term
+"My office is located in the downtown area.",long-term
+"I started my career as a junior web designer.",long-term
+"I am planning to buy a house in the next three years.",long-term
+"My father is a retired bank manager.",long-term
+"I love listening to jazz while I code.",long-term
+"I have two younger brothers.",long-term
+"I am building a startup called DockerizeAI.",long-term
+"My go-to coffee order is a flat white.",long-term
+"I am scared of heights but love flying.",long-term
+"I play the guitar in my free time.",long-term
+"I am a fan of the Manchester United football club.",long-term
+"I write technical blogs on Medium.",long-term
+"My phone number ends in 4567.",long-term
+"I am interested in learning Rust in the future.",long-term
+"I have a passion for sustainable energy.",long-term
+"I am saving money for a trip to Iceland.",long-term
+"My favorite book is The Alchemist.",long-term
+"I use VS Code as my primary code editor.",long-term
+"I am a morning person and wake up at 6 AM.",long-term
+"I have a LinkedIn profile for my professional networking.",long-term
+"I prefer working from home rather than the office.",long-term
+"I am a citizen of India.",long-term
+"I have a master's degree in Data Science.",long-term
+"I enjoy watching sci-fi movies on Netflix.",long-term
+"I am currently single and living alone.",long-term
+"My dream is to travel the world while working remotely.",long-term
+"Can you summarize what we just discussed?",short-term
+"Rewrite the last code block using Python.",short-term
+"Explain that again but in simpler terms.",short-term
+"What was the first thing I asked you in this chat?",short-term
+"Can you fix the bug in the code above?",short-term
+"Tell me more about the point you just made.",short-term
+"Translate that last sentence into Spanish.",short-term
+"Summarize the context of our current conversation.",short-term
+"Can you make the last explanation shorter?",short-term
+"What do you think about the idea I just shared?",short-term
+"Give me an example based on what we are talking about.",short-term
+"Could you repeat that last part?",short-term
+"Format the previous response as a table.",short-term
+"Can you check if there are any typos in the text above?",short-term
+"What is the main takeaway from this conversation so far?",short-term
+"Elaborate on the third bullet point from the last list.",short-term
+"Can you provide a code snippet for what you just explained?",short-term
+"What did you mean by that last word?",short-term
+"Ignore my last prompt and focus on this one.",short-term
+"Can you combine the last two points into one paragraph?",short-term
+"How does this relate to the previous topic?",short-term
+"Can you clarify the last paragraph?",short-term
+"Turn the last response into a list of steps.",short-term
+"Give me a pros and cons list for the last suggestion.",short-term
+"What was the result of the last calculation?",short-term
+"Continue from where you left off.",short-term
+"Can you rephrase the last sentence to be more professional?",short-term
+"What is the definition of the term you used earlier?",short-term
+"Can you provide more details on the last example?",short-term
+"Is there another way to explain the last concept?",short-term
+"How would you implement the last solution in Node.js?",short-term
+"Can you list the key points from our current session?",short-term
+"What are the implications of the last statement?",short-term
+"Can you provide a summary of the last 10 minutes of chat?",short-term
+"Make the last response more concise.",short-term
+"Can you explain the logic behind the last code snippet?",short-term
+"Are there any alternatives to the last approach?",short-term
+"Can you expand on the last idea?",short-term
+"What is the context of the word 'it' in your last reply?",short-term
+"Can you proofread the last paragraph I wrote?",short-term
+"Provide a summary of the current dialogue.",short-term
+"Can you rewrite the last function to be more efficient?",short-term
+"What was the context of my very first question here?",short-term
+"Can you add more comments to the code above?",short-term
+"Explain the pros of the last method you mentioned.",short-term
+"Can you give me a summary of our chat history for today?",short-term
+"What are the main arguments in the last section?",short-term
+"Can you provide a counter-argument to the last point?",short-term
+"Simplify the last technical explanation.",short-term
+"Can you visualize the last process for me?",short-term
+"I am a dual citizen of Italy and the United Kingdom.",long-term
+"My first laptop was an old Dell Inspiron I bought in 2010.",long-term
+"I have been a digital nomad for the last four years.",long-term
+"I am a licensed scuba diver with over 50 logged dives.",long-term
+"My favorite childhood hobby was collecting rare Marvel comic books.",long-term
+"I am deeply interested in quantum computing and cryptography.",long-term
+"I have a phobia of enclosed spaces and elevators.",long-term
+"My family owns a small vineyard in Northern California.",long-term
+"I am currently writing a science fiction novel in my spare time.",long-term
+"I worked as a barista while I was puting myself through college.",long-term
+"My go-to workout is a mix of CrossFit and heavy lifting.",long-term
+"I have a master's degree in Linguistics from Oxford.",long-term
+"I am a lifelong fan of the Studio Ghibli films.",long-term
+"I have a scar on my forehead from a hiking accident in 2015.",long-term
+"I am a strictly early-to-bed and early-to-rise person.",long-term
+"My grandfather was a captain in the merchant navy.",long-term
+"I am building a home automation system using Home Assistant.",long-term
+"I have been practicing mindfulness meditation for three years.",long-term
+"My favorite holiday tradition is baking gingerbread with my niece.",long-term
+"I am currently self-studying Japanese kanji.",long-term
+"I spent my childhood living in four different countries.",long-term
+"I am a volunteer mentor for underprivileged kids in tech.",long-term
+"My favorite instrument to listen to is the cello.",long-term
+"I have a dedicated room in my house for a home library.",long-term
+"I am planning a solo motorcycle trip across the Silk Road.",long-term
+"I have a passion for sustainable architecture and green building.",long-term
+"My favorite way to relax is solving complex 1000-piece puzzles.",long-term
+"I am allergic to penicillin and some types of pollen.",long-term
+"I worked at a startup that failed during the 2020 pandemic.",long-term
+"I have a collection of antique maps from the 18th century.",long-term
+"My favorite coffee bean variety is Ethiopian Yirgacheffe.",long-term
+"I am a big fan of formula 1 and follow the Ferrari team.",long-term
+"I have a goal to visit every national park in my country.",long-term
+"I am currently learning how to bake sourdough bread from scratch.",long-term
+"My favorite scent is sandalwood and old parchment.",long-term
+"I am a regular contributor to open-source React libraries.",long-term
+"I have a pet turtle named Shelly who is ten years old.",long-term
+"My dream is to retire and live in a cabin by a lake.",long-term
+"I am a competitive chess player on Lichess.",long-term
+"I have a habit of keeping a handwritten daily journal.",long-term
+"My favorite childhood game was Hide and Seek in the woods.",long-term
+"I am a minimalist and try to own fewer than 100 items.",long-term
+"I have a passion for learning about ancient Mesopotamian history.",long-term
+"My first car was a beat-up red Volkswagen Beetle.",long-term
+"I am currently investigating the impact of AI on job markets.",long-term
+"I have a fear of deep water where I can't see the bottom.",long-term
+"My favorite cuisine to cook at home is Thai food.",long-term
+"I am a supporter of the Electronic Frontier Foundation.",long-term
+"I have a master's in Fine Arts from the Chicago Institute.",long-term
+"I am currently training to hike the Appalachian Trail.",long-term
+"Can you compare the last two code snippets I gave you?",short-term
+"What are the security risks of the solution you just described?",short-term
+"Could you explain the difference between that and what we said before?",short-term
+"Can you turn the last three points into a professional email?",short-term
+"What did you mean when you used that technical jargon earlier?",short-term
+"Can you provide a more visual explanation of that last process?",short-term
+"How would you refactor the code above to be more readable?",short-term
+"Can you summarize our conversation for someone who just joined?",short-term
+"What are the alternative approaches to the one you just suggested?",short-term
+"Can you clarify the logic behind the second step in that list?",short-term
+"How does the last thing you said help solve my initial error?",short-term
+"Can you list the pros and cons of the last technology we mentioned?",short-term
+"What would the output be if I ran the script you just wrote?",short-term
+"Can you rephrase that last sentence to be more polite?",short-term
+"What are the main edge cases for the code we just discussed?",short-term
+"Can you provide a real-world example of the concept above?",short-term
+"How would you translate the last paragraph into German?",short-term
+"Can you expand on the point about performance optimization?",short-term
+"What are the prerequisites for the solution you just proposed?",short-term
+"Can you create a summary of the current thread for me?",short-term
+"What is the connection between those two things you mentioned?",short-term
+"Can you provide a more concise version of the last explanation?",short-term
+"How does the last point change if we use a different database?",short-term
+"Can you clarify the instructions you just gave me?",short-term
+"What are the potential bottlenecks in the last architecture?",short-term
+"Can you provide a code example for the second point?",short-term
+"How would you summarize the last section of our chat?",short-term
+"Can you identify any flaws in the logic I just presented?",short-term
+"What are the next steps after the implementation you described?",short-term
+"Can you provide a simpler analogy for that last concept?",short-term
+"How does the last point apply to a small-scale project?",short-term
+"Can you clarify the meaning of that last specific term?",short-term
+"What are the common pitfalls when using the last method?",short-term
+"Can you provide a summary of the evidence supporting that last claim?",short-term
+"How would you simplify the last technical paragraph?",short-term
+"Can you identify the recurring themes in our current session?",short-term
+"What are the key takeaways from the last example you gave?",short-term
+"Can you provide a deeper dive into the last topic?",short-term
+"How does the last point lead to the final result?",short-term
+"Can you clarify the constraints of the last suggestion?",short-term
+"What are the most vital things to remember from the last part?",short-term
+"Can you provide a summary of the points we've covered so far?",short-term
+"How would you describe the last concept to a beginner?",short-term
+"What was the context of the question I asked right before this?",short-term
+"Can you add more error handling to the code above?",short-term
+"Explain the advantages of the last framework you mentioned.",short-term
+"Can you give me a bulleted summary of our entire discussion today?",short-term
+"What are the core arguments in the last response?",short-term
+"Can you provide a different perspective on the last point?",short-term
+"Simplify the technical language in that last section.",short-term
+"I have a collection of antique pocket watches from my grandfather.",long-term
+"I lived in Kyoto for three years during my early twenties.",long-term
+"I am deeply passionate about oceanography and marine biology.",long-term
+"My first pet was a black cat named Shadow.",long-term
+"I am a frequent blood donor and have a rare blood type.",long-term
+"I am building a smart mirror using a Raspberry Pi.",long-term
+"I have a distinct birthmark on my right shoulder.",long-term
+"My favorite childhood snack was toasted seaweed.",long-term
+"I am a certified yoga instructor but I don't teach professionally.",long-term
+"I have been a vegetarian since I was twelve years old.",long-term
+"My family heritage is half-Swedish and half-Japanese.",long-term
+"I am currently training for a triathlon next summer.",long-term
+"I have a phobia of deep, open water and large ships.",long-term
+"My favorite artist is Jean-Michel Basquiat.",long-term
+"I am a member of a local community garden in Brooklyn.",long-term
+"I used to play semi-professional volleyball in college.",long-term
+"My first car was a second-hand silver Honda Civic.",long-term
+"I am a strong advocate for digital privacy and encryption.",long-term
+"I have a master's degree in Renewable Energy Systems.",long-term
+"I am currently self-hosting my own email server.",long-term
+"My favorite genre of literature is magical realism.",long-term
+"I am an only child and grew up in a very quiet household.",long-term
+"I have a goal to learn how to sail a yacht solo.",long-term
+"My go-to comfort movie is My Neighbor Totoro.",long-term
+"I am currently learning how to play the harmonica.",long-term
+"I have a collection of pressed wildflowers from my travels.",long-term
+"My father was a civil engineer who built bridges.",long-term
+"I am a regular contributor to Wikipedia on history topics.",long-term
+"I have a passion for learning about ancient Norse mythology.",long-term
+"My dream is to hike the entire length of the Andes.",long-term
+"I am allergic to bee stings and carry an EpiPen.",long-term
+"I worked as a library assistant while studying for my degree.",long-term
+"My favorite smell is the combination of pine and woodsmoke.",long-term
+"I am a fan of the Boston Celtics and watch every game.",long-term
+"I have a habit of waking up at 5 AM to write code.",long-term
+"My favorite holiday was a backpacking trip through Vietnam.",long-term
+"I am currently researching the impact of blockchain on voting.",long-term
+"I have a very high tolerance for spicy food.",long-term
+"My favorite childhood book was Where the Wild Things Are.",long-term
+"I am a minimalist and live in a tiny house on wheels.",long-term
+"I have a passion for amateur astronomy and own a telescope.",long-term
+"My first job in tech was a QA tester for a mobile app.",long-term
+"I am currently learning to cook authentic Lebanese food.",long-term
+"I have a fear of heights but I enjoy rock climbing.",long-term
+"My favorite way to spend a Sunday is visiting art galleries.",long-term
+"I am a huge supporter of the Open Source Initiative.",long-term
+"I have a master's degree in Philosophy from Edinburgh.",long-term
+"I am currently practicing for a local 5k swim event.",long-term
+"My favorite childhood tradition was the winter solstice bonfire.",long-term
+"I am a citizen of both New Zealand and Australia.",long-term
+"Can you rewrite that last logic to use a switch-case?",short-term
+"What are the performance implications of the code above?",short-term
+"Explain why you chose that specific library in the last step.",short-term
+"Can you summarize the code we just wrote into a brief docstring?",short-term
+"What did you mean by 'asynchronous' in your previous reply?",short-term
+"Can you provide a diagram for the flow you just described?",short-term
+"How would you optimize the last loop for better speed?",short-term
+"Can you summarize this entire thread in three bullet points?",short-term
+"What are the drawbacks of using the approach you just mentioned?",short-term
+"Can you clarify the syntax in the second line of the code block?",short-term
+"How does the last thing you said relate to my initial error?",short-term
+"Can you list the advantages of the framework we were discussing?",short-term
+"What will happen if the input is null in the last example?",short-term
+"Can you rephrase the last paragraph for a non-technical manager?",short-term
+"What are the potential bugs in the logic we just discussed?",short-term
+"Can you give me a code snippet for the idea you just had?",short-term
+"How would you translate the previous section into French?",short-term
+"Can you elaborate on the security part of the last response?",short-term
+"What are the requirements for the setup you just proposed?",short-term
+"Can you generate a summary of our current chat history?",short-term
+"What is the link between the first point and the last point?",short-term
+"Can you provide a shorter version of the last explanation?",short-term
+"How does the last point change if I switch to a SQL database?",short-term
+"Can you clarify the steps you just outlined?",short-term
+"What are the main risks in the architecture you just drew?",short-term
+"Can you give me an example for the fourth point on that list?",short-term
+"How would you summarize the last few minutes of our talk?",short-term
+"Can you find any errors in the logic I just wrote?",short-term
+"What should I do after I finish the steps you just listed?",short-term
+"Can you provide a better analogy for the last technical concept?",short-term
+"How does the last point apply to a large-scale enterprise app?",short-term
+"Can you clarify the definition of that last specific term?",short-term
+"What are the mistakes people usually make with that method?",short-term
+"Can you provide a summary of the reasons for that last claim?",short-term
+"How would you simplify the technical details in that last part?",short-term
+"Can you identify the main themes we have touched on so far?",short-term
+"What are the key takeaways from the code snippet above?",short-term
+"Can you do a deeper dive into the specific part you mentioned?",short-term
+"How does the last step lead into the final output?",short-term
+"Can you clarify the limitations of the last library we used?",short-term
+"What is the most important thing to learn from the last section?",short-term
+"Can you provide a summary of the topics we have discussed?",short-term
+"How would you explain the last function to a junior dev?",short-term
+"What was the context of the prompt I sent before the code?",short-term
+"Can you add more validation logic to the code above?",short-term
+"Explain the benefits of the architecture you just mentioned.",short-term
+"Can you give me a summary of everything we talked about today?",short-term
+"What are the primary arguments in your last message?",short-term
+"Can you provide a different perspective on that last idea?",short-term
+"Simplify the wording in the last technical explanation.",short-term
+"My family has a tradition of making handmade ornaments every December.",long-term
+"I spent most of my childhood in a rural town in Vermont.",long-term
+"I am a lifelong supporter of the World Wildlife Fund.",long-term
+"My first childhood pet was a hamster named Pip.",long-term
+"I have a rare allergy to certain types of local grass pollen.",long-term
+"I am currently restoring a 1970s record player.",long-term
+"I have a distinctive scar on my chin from a playground fall.",long-term
+"My favorite childhood meal was my grandmother's shepherd's pie.",long-term
+"I am a certified rescue diver but I only dive once a year.",long-term
+"I have been a pescatarian for the last eight years.",long-term
+"My ancestry is predominantly Irish and Scandinavian.",long-term
+"I am training to hike the Pacific Crest Trail next autumn.",long-term
+"I have a phobia of lightning and loud thunderstorms.",long-term
+"My favorite contemporary artist is Yayoi Kusama.",long-term
+"I am an active member of the local historical society.",long-term
+"I played competitive table tennis throughout high school.",long-term
+"My first car was a beat-up blue Ford Fiesta.",long-term
+"I am a strong advocate for open-source healthcare software.",long-term
+"I have a master's degree in Cognitive Psychology.",long-term
+"I am currently hosting my own private cloud storage.",long-term
+"My favorite literary genre is historical non-fiction.",long-term
+"I am an only child and I grew up in the Pacific Northwest.",long-term
+"I have a life goal to visit every continent before I am 50.",long-term
+"My go-to movie for a rainy day is Spirited Away.",long-term
+"I am learning to play the banjo via YouTube tutorials.",long-term
+"I have a collection of sand from every beach I've visited.",long-term
+"My mother was a professional violinist in a city orchestra.",long-term
+"I am a regular donor to various open-source coding projects.",long-term
+"I have a fascination with the history of the Silk Road.",long-term
+"My dream is to sail around the world in a small yacht.",long-term
+"I am severely allergic to wasp stings and carry a kit.",long-term
+"I worked as a tutor for mathematics while I was a student.",long-term
+"My favorite scent is the smell of a woodstove in winter.",long-term
+"I am a fan of the Golden State Warriors and follow them closely.",long-term
+"I have a routine of waking up at 4:30 AM to read technical docs.",long-term
+"My favorite vacation was a train journey across Europe.",long-term
+"I am currently investigating the ethics of AI in medicine.",long-term
+"I have a very high tolerance for cold weather and snow.",long-term
+"My favorite childhood book was The Chronicles of Narnia.",long-term
+"I am a minimalist and I prefer living in a studio apartment.",long-term
+"I have a passion for urban gardening and rooftop farming.",long-term
+"My first job in the industry was as a junior UX researcher.",long-term
+"I am learning how to cook traditional Moroccan dishes.",long-term
+"I have a fear of public speaking but I lead team meetings.",long-term
+"My favorite way to spend a Saturday is at a used bookstore.",long-term
+"I am a vocal supporter of the Free Software Foundation.",long-term
+"I have a master's degree in Anthropology from Yale.",long-term
+"I am currently preparing for a 10-mile open water swim.",long-term
+"My favorite childhood tradition was the annual summer fair.",long-term
+"I am a citizen of both Canada and the United Kingdom.",long-term
+"Can you convert that last JSON object into a TypeScript interface?",short-term
+"What are the trade-offs of the database schema we just designed?",short-term
+"Explain why you used a recursive approach in the last snippet.",short-term
+"Can you summarize the logic of that function into a README section?",short-term
+"What did you mean by 'middleware' in your earlier response?",short-term
+"Can you provide a sequence diagram for the flow you just explained?",short-term
+"How would you optimize the last database query for speed?",short-term
+"Can you summarize this entire chat into five key bullet points?",short-term
+"What are the risks of the deployment strategy you just mentioned?",short-term
+"Can you clarify the syntax of the third line in that block?",short-term
+"How does the last point you made address my original bug?",short-term
+"Can you list the pros and cons of the architecture we are discussing?",short-term
+"What will happen if the API returns a 404 in the last example?",short-term
+"Can you rephrase the last technical bit for a marketing team?",short-term
+"What are the potential memory leaks in the code we just wrote?",short-term
+"Can you give me a code example for the concept you just shared?",short-term
+"How would you translate the previous paragraph into Japanese?",short-term
+"Can you elaborate on the performance side of the last reply?",short-term
+"What are the dependencies for the project structure you proposed?",short-term
+"Can you generate a summary of our discussion for today?",short-term
+"What is the connection between the first error and the last fix?",short-term
+"Can you provide a more concise version of that last explanation?",short-term
+"How does the last point change if I use a NoSQL database?",short-term
+"Can you clarify the steps you just wrote down?",short-term
+"What are the main vulnerabilities in the code you just showed?",short-term
+"Can you give me an example for the second point on that list?",short-term
+"How would you summarize the last ten minutes of our chat?",short-term
+"Can you spot any logical errors in the snippet I just pasted?",short-term
+"What should I do after I run the command you just gave me?",short-term
+"Can you provide a simpler analogy for the last network concept?",short-term
+"How does the last point apply to a small serverless function?",short-term
+"Can you clarify the meaning of the last technical term you used?",short-term
+"What are the most common mistakes with the method you just described?",short-term
+"Can you provide a summary of the data supporting that last claim?",short-term
+"How would you simplify the technical language in that last section?",short-term
+"Can you identify the main themes we've covered in this session?",short-term
+"What are the key takeaways from the logic explained above?",short-term
+"Can you do a deeper dive into the specific module you mentioned?",short-term
+"How does the last setup lead into the authentication flow?",short-term
+"Can you clarify the limitations of the last framework we discussed?",short-term
+"What is the most important takeaway from the last part of this chat?",short-term
+"Can you provide a summary of the technical topics we have covered?",short-term
+"How would you explain the last function to a product manager?",short-term
+"What was the context of the question I sent before the code block?",short-term
+"Can you add more unit tests to the code snippet above?",short-term
+"Explain the scalability of the architecture you just mentioned.",short-term
+"Can you give me a summary of every project we talked about today?",short-term
+"What are the primary arguments in the last section of your reply?",short-term
+"Can you provide a different perspective on that last strategy?",short-term
+"Simplify the technical terminology in the last paragraph.",short-term
+"hello",short-term
+"hi",short-term
+"hey there",short-term
+"good morning",short-term
+"good evening",short-term
+"how are you?",short-term
+"how's it going?",short-term
+"yo",short-term
+"sup",short-term
+"hi ai",short-term
+"greetings",short-term
+"nice to meet you",short-term
+"long time no see",short-term
+"how have you been?",short-term
+"what's up?",short-term
+"hey buddy",short-term
+"are you awake?",short-term
+"hello assistant",short-term
+"just saying hi",short-term
+"hope you are well",short-term
+"good to see you",short-term
+"hey!",short-term
+"hi!",short-term
+"hello?",short-term
+"anybody there?",short-term
+"test",short-term
+"testing 123",short-term
+"is this working?",short-term
+"hello world",short-term
+"good night",short-term
+"bye",short-term
+"goodbye",short-term
+"see you later",short-term
+"talk to you soon",short-term
+"thanks",short-term
+"thank you",short-term
+"thanks a lot",short-term
+"cheers",short-term
+"cool",short-term
+"okay",short-term
+"ok",short-term
+"got it",short-term
+"understood",short-term
+"perfect",short-term
+"awesome",short-term
+"no problem",short-term
+"you are welcome",short-term
+"ha ha",short-term
+"lol",short-term
+"lmao",short-term
+"what time is it?",short-term
+"what is the weather like?",short-term
+"who is the president?",short-term
+"tell me a joke",short-term
+"sing me a song",short-term
+"what is 2 plus 2?",short-term
+"search the web",short-term
+"find a recipe for pasta",short-term
+"how do i bake a cake?",short-term
+"what is the capital of france?",short-term
+"tell me a fun fact",short-term
+"define the word serendipity",short-term
+"set a timer for 5 minutes",short-term
+"play some music",short-term
+"turn on the lights",short-term
+"what is the stock price of apple?",short-term
+"how far is the moon?",short-term
+"give me a random number",short-term
+"flip a coin",short-term
+"roll a die",short-term
+"what is the news today?",short-term
+"tell me about dinosaurs",short-term
+"how does a car engine work?",short-term
+"translate hello to spanish",short-term
+"who won the game last night?",short-term
+"is it going to rain?",short-term
+"where am i?",short-term
+"show me a map",short-term
+"book a flight",short-term
+"order pizza",short-term
+"help",short-term
+"i need help",short-term
+"what can you do?",short-term
+"give me some suggestions",short-term
+"i am bored",short-term
+"tell me a story",short-term
+"what is your name?",short-term
+"are you a robot?",short-term
+"who made you?",short-term
+"how old are you?",short-term
+"can you think?",short-term
+"do you have feelings?",short-term
+"random thoughts",short-term
+"just ignore this",short-term
+"blah blah blah",short-term
+"typing for no reason",short-term
+"asdfghjkl",short-term
+"qwerty",short-term
+"12345",short-term
+"testing testing",short-term
