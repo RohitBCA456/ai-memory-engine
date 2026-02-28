@@ -5,4 +5,4 @@ const router = Router();
 
 router.route("/memory").post(addMemory);
 
-export { router as memeoryRouter };
+export { router as memoryRouter };

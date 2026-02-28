@@ -12,7 +12,7 @@ app.use(cors({
 }))
 
 app.use("/memory-service", proxy(process.env.MEMORY_ROUTE));
-app.use("/embedding-service", proxy(process.env.EMBEDDING_ROUTE));
+app.use("/retrieval-service", proxy(process.env.RETRIEVAL_ROUTE));
 
 app.listen(process.env.PORT, () => {
   console.log("Gateway service running on port : ", process.env.PORT);

@@ -6,7 +6,7 @@ const bridgeEmitter = new EventEmitter();
 export const MessageBridge = {
   createCorrelationId: () => uuidv4(),
 
-  waitForResponse: (correlationId, timeoutMs = 10000) => {
+  waitForResponse: (correlationId, timeoutMs = 20000) => {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         bridgeEmitter.removeAllListeners(correlationId);

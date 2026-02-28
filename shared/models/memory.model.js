@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const memorySchema = new mongoose.Schema({
-
   userId: { type: String, required: true, index: true },
 
   content: { type: String, required: true },
@@ -19,4 +18,5 @@ const memorySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export const MemoryModel = mongoose.models.Memory || mongoose.model("Memory", memorySchema);
+export const MemoryModel =
+  mongoose.models.Memory || mongoose.model("Memory", memorySchema);

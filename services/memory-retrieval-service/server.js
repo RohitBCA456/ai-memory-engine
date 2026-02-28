@@ -1,8 +1,9 @@
 import express from "express";
-import { memoryRouter } from "./src/routes/memory.routes.js";
 import dotenv from "dotenv";
 import cors from "cors";
-import { consumeMemoryId } from "./src/consumers/memoryId.consumer.js";
+import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
+import { connectToRedis } from "../../shared/connectors/redis.connector.js";
+import { retrievalRouter } from "./src/routers/memoryRetrieval.router.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   cors({
     origin: process.env.ORIGIN,
@@ -19,10 +21,13 @@ app.use(
   }),
 );
 
-await consumeMemoryId();
+app.use("/", retrievalRouter);
 
-app.use("/", memoryRouter);
+await connectToMongoDB();
+await connectToRedis();
 
 app.listen(process.env.PORT, () => {
-  console.log(`Memory Service is running on port: ${process.env.PORT}`);
+  console.log(
+    `Memory Retrieval service is running on Port: ${process.env.PORT}`,
+  );
 });
