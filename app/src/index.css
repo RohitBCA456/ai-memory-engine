@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+
+/* Base styles for Light Mode */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #f9fafb; /* gray-50 */
+  color: #111827; /* gray-900 */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Manual Overrides */
+.dark body {
+  background-color: #000000; /* Pure Black */
+  color: #f9fafb; /* gray-50 */
+}
+
+/* Custom Scrollbar for Dark Mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #000000;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 10px;
+}
