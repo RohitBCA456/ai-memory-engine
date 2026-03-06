@@ -3,11 +3,12 @@ import { Database, SortDesc } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
 export default function FilterBar({ typeFilter, setTypeFilter, timeSort, setTimeSort, isDarkMode }) {
-  const storageOptions = [
-    { label: 'All Storage', value: 'all' },
-    { label: 'MongoDB (Long)', value: 'long-term' },
-    { label: 'Redis (Short)', value: 'short-term' },
-  ];
+
+const storageOptions = [
+  { label: "All Storage", value: "all" },
+  { label: "MongoDB", value: "mongodb" },
+  { label: "Redis", value: "redis" },
+];
 
   const sortOptions = [
     { label: 'Newest First', value: 'newest' },

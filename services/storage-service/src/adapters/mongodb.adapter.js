@@ -5,6 +5,7 @@ export const storeToMongoDB = asyncHandler(async (data) => {
   return await MemoryModel.create({
     userId: data.userId,
     content: data.content,
+    appId: data.appId,
     type: data.type,
     embedding: data.embedding,
     score: data.score,

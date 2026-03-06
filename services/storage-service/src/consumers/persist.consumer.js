@@ -39,6 +39,7 @@ export const consumePersistMemory = asyncHandler(async () => {
         memoryId = key;
       } else {
         console.log("Similar short-term context found. Skipping.");
+        memoryId = data?.memoryId
       }
     }
 

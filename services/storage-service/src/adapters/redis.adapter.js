@@ -4,11 +4,12 @@ import { redisClient } from "../../../../shared/connectors/redis.connector.js";
 export const storeToRedis = asyncHandler(async (data) => {
   const vectorBuffer = Buffer.from(new Float32Array(data.embedding).buffer);
 
-  const key = `mem:${data.userId}:${Date.now()}`;
+  const key = `mem:${data.appId}:${Date.now()}`;
 
   await redisClient.hSet(key, {
     content: data.content,
     type: data.type,
+    appId: data.appId,
     embedding: vectorBuffer,
     score: (Number(data.score) || 0).toString(),
     userId: data.userId,

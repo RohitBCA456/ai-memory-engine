@@ -62,7 +62,7 @@ function App() {
             />
 
             <Route
-              path="/explorer"
+              path="/explorer/:appId"
               element={
                 <>
                   <SignedIn>

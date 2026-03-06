@@ -10,12 +10,21 @@ app.use(
     origin: process.env.ALLOWED_ORIGIN,
     credentials: true,
     methods: ["GET, POST, PUT, DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
 app.use("/memory-service", proxy(process.env.MEMORY_ROUTE));
 app.use("/retrieval-service", proxy(process.env.RETRIEVAL_ROUTE));
 app.use("/deletion-service", proxy(process.env.DELETION_ROUTE));
+app.use("/user-service", proxy(process.env.USER_ROUTE, {
+  proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+    if (srcReq.headers['authorization']) {
+      proxyReqOpts.headers['authorization'] = srcReq.headers['authorization'];
+    }
+    return proxyReqOpts;
+  }
+}));
 
 app.listen(process.env.PORT, () => {
   console.log("Gateway service running on port : ", process.env.PORT);

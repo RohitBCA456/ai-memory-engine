@@ -11,6 +11,8 @@ const memorySchema = new mongoose.Schema({
 
   score: Number,
 
+  appId: String,
+
   frequency: { type: Number, default: 1 },
 
   lastSeenAt: { type: Date, default: Date.now },
