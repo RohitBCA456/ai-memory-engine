@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { asyncHandler } from "../../shared/utilities/asyncHandler.js";
 import dotenv from "dotenv";
 
-dotenv.config({ path: "../../.env" });
+dotenv.config({ path: "../.env" });
 
 export const connectToMongoDB = asyncHandler(async () => {
   const connectionInstance = await mongoose.connect(
