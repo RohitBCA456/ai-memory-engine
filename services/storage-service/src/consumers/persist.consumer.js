@@ -33,7 +33,7 @@ export const consumePersistMemory = asyncHandler(async () => {
         );
       }
     } else if (data.type === "short-term") {
-      if (data.score > 0.6) {
+      if (data.score > 0.5) {
         console.log("New short-term context detected. Storing in Redis.");
         const key = await storeToRedis(data);
         memoryId = key;

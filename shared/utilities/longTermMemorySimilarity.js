@@ -1,5 +1,5 @@
 import { MemoryModel } from "../models/memory.model.js";
-import { getEmbedding } from "../../services/embedding-service/src/adapters/llm.adapter.js";
+import { getEmbedding } from "./llm.adapter.js";
 
 export async function findSimilarLongTermMemory(userId, text) {
 

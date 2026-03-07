@@ -1,6 +1,6 @@
 import { consumeEvent } from "../../../event-bus/src/consumer.js";
 import { EVENTS } from "../../../event-bus/src/event.js";
-import { getEmbedding } from "../adapters/llm.adapter.js";
+import { getEmbedding } from "../../../../shared/utilities/llm.adapter.js";
 import { publishgMemoryEmbedding } from "../adapters/event.publisher.js";
 
 export async function consumeMemoryIngest() {

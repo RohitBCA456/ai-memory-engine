@@ -8,6 +8,7 @@ import {
   saveCredentials,
   getGlobalStats,
   deleteApp,
+  deleteMemory,
 } from "../controllers/user.controller.js";
 import { verifyAuth } from "../middleware/auth.middleware.js";
 
@@ -21,5 +22,6 @@ router.route("/telemetry/:appId").get(verifyAuth, getAppTelemetry);
 router.route("/memories/:appId").get(getAppMemories);
 router.route("/global-stats").get(verifyAuth, getGlobalStats);
 router.route("/delete-app/:id").delete(verifyAuth, deleteApp);
+router.route("/delete-memory/:memoryId").delete(verifyAuth, deleteMemory);
 
 export { router as userRouter };

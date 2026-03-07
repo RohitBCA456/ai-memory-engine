@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # 1. API Gateway (The Entry Point)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    ports:
+      - "4000:4000"
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+  # 2. Ingest Service
+  memory-service:
+    build:
+      context: .
+      dockerfile: services/memory-service/Dockerfile
+    env_file: .env
+    depends_on:
+      - classifier
+    networks:
+      - ai-memory-network
+
+  # 3. Python Classifier (Independent)
+  classifier:
+    build:
+      context: services/classifier
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5001
+    networks:
+      - ai-memory-network
+
+  # 4. Storage Service (Worker)
+  storage-service:
+    build:
+      context: .
+      dockerfile: services/storage-service/Dockerfile
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+  # 5. Embedding Service (Worker)
+  embedding-service:
+    build:
+      context: .
+      dockerfile: services/embedding-service/Dockerfile
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+  # 6. Retrieval Service
+  retrieval-service:
+    build:
+      context: .
+      dockerfile: services/memory-retrieval-service/Dockerfile
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+  # 7. Deletion Service
+  deletion-service:
+    build:
+      context: .
+      dockerfile: services/memory-deletion-service/Dockerfile
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+  # 8. User Service (API Keys)
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user-service/Dockerfile
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+  # 9. Scoring Service (Worker)
+  scoring-service:
+    build:
+      context: .
+      dockerfile: services/scoring-service/Dockerfile
+    env_file: .env
+    networks:
+      - ai-memory-network
+
+networks:
+  ai-memory-network:
+    driver: bridge

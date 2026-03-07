@@ -4,7 +4,7 @@ import axios from 'axios';
 export const getType = async (content) => {
   try {
     // Calling your local Python classifier
-    const response = await axios.post('http://127.0.0.1:5001/predict', {
+    const response = await axios.post('http://classifier:5001/predict', {
       text: content
     });
 

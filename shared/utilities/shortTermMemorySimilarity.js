@@ -1,5 +1,5 @@
 import { redisClient } from "../connectors/redis.connector.js";
-import { getEmbedding } from "../../services/embedding-service/src/adapters/llm.adapter.js";
+import { getEmbedding } from "./llm.adapter.js";
 
 export async function findSimilarShortTerm(userId, text) {
   try {

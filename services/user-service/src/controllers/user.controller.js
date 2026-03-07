@@ -4,6 +4,7 @@ import { App } from "../../../../shared/models/app.model.js";
 import { generateApiKey } from "../services/apiKey.service.js";
 import { MemoryModel } from "../../../../shared/models/memory.model.js";
 import { redisClient } from "../../../../shared/connectors/redis.connector.js";
+import mongoose from "mongoose";
 
 export const saveCredentials = asyncHandler(async (req, res) => {
   const { username, imageUrl, email, clerkId } = req.body;
@@ -62,15 +63,17 @@ export const logoutUser = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
   if (!userId) {
-    return res.status(401).json({ success: false, message: "Unauthorized request" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized request" });
   }
 
   const updatedUser = await User.findOneAndUpdate(
     { _id: userId },
-    { 
-      $set: { webToken: "" } 
+    {
+      $set: { webToken: "" },
     },
-    { new: true } 
+    { new: true },
   );
 
   const options = {
@@ -160,43 +163,56 @@ export const getAppTelemetry = asyncHandler(async (req, res) => {
 
   const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  // 2. Fetch MongoDB Stats (Long-Term)
   const mongoStats = await MemoryModel.aggregate([
-    { $match: { appId: app._id, createdAt: { $gte: last24Hours } } },
-    { $group: { _id: { $hour: "$createdAt" }, count: { $sum: 1 } } },
+    { $match: { appId: appId.toString(), createdAt: { $gte: last24Hours } } },
+    {
+      $group: {
+        _id: {
+          $hour: {
+            date: "$createdAt",
+            timezone: "Asia/Kolkata",
+          },
+        },
+        count: { $sum: 1 },
+      },
+    },
   ]);
 
   const redisKeys = await redisClient.keys(`mem:${appId}:*`);
 
-  // 4. Initialize 24-hour buckets matching your UI
-  const intervals = [
-    "00:00",
-    "04:00",
-    "08:00",
-    "12:00",
-    "16:00",
-    "20:00",
-    "Now",
-  ];
+  const intervals = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"];
   const telemetry = intervals.map((time) => ({
     time,
     longTerm: 0,
     shortTerm: 0,
   }));
 
-  // Populate MongoDB data into intervals
+  const getBucketIndex = (hour) => {
+    if (hour >= 24) hour = 0;
+    return Math.floor(hour / 4);
+  };
+
   mongoStats.forEach((stat) => {
-    const bucketIndex = Math.floor(stat._id / 4);
-    if (telemetry[bucketIndex]) telemetry[bucketIndex].longTerm += stat.count;
+    const index = getBucketIndex(stat._id);
+    if (telemetry[index]) telemetry[index].longTerm += stat.count;
   });
 
-  // Populate Redis data into intervals
   redisKeys.forEach((key) => {
     const timestamp = parseInt(key.split(":").pop());
-    if (timestamp > last24Hours.getTime()) {
-      const hour = new Date(timestamp).getHours();
-      const bucketIndex = Math.floor(hour / 4);
-      if (telemetry[bucketIndex]) telemetry[bucketIndex].shortTerm += 1;
+
+    const date = new Date(timestamp);
+
+    const istHourString = date.toLocaleString("en-US", {
+      hour: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Kolkata",
+    });
+
+    const hour = parseInt(istHourString);
+    const index = getBucketIndex(hour);
+
+    if (telemetry[index]) {
+      telemetry[index].shortTerm += 1;
     }
   });
 
@@ -207,12 +223,10 @@ export const getAppMemories = asyncHandler(async (req, res) => {
   const { appId } = req.params;
   const { type = "all" } = req.query;
 
-  // Normalize the type to lowercase for easier comparison
-  const filterType = type.toLowerCase(); 
+  const filterType = type.toLowerCase();
 
   let combinedMemories = [];
 
-  // 1. Fetch from Redis (Short-Term)
   if (filterType === "all" || filterType === "redis") {
     const keys = await redisClient.keys(`mem:${appId}:*`);
     const redisData = await Promise.all(
@@ -229,7 +243,6 @@ export const getAppMemories = asyncHandler(async (req, res) => {
     combinedMemories = [...redisData];
   }
 
-  // 2. Fetch from MongoDB (Long-Term)
   if (filterType === "all" || filterType === "mongodb") {
     const mongoData = await MemoryModel.find({ appId })
       .sort({ createdAt: -1 })
@@ -244,7 +257,6 @@ export const getAppMemories = asyncHandler(async (req, res) => {
     combinedMemories = [...combinedMemories, ...formattedMongo];
   }
 
-  // 3. Final Sort (Newest First)
   combinedMemories.sort((a, b) => b.createdAt - a.createdAt);
 
   return res.status(200).json({
@@ -253,16 +265,11 @@ export const getAppMemories = asyncHandler(async (req, res) => {
   });
 });
 
-// services/user-service/src/controllers/user.controller.js
-
 export const getGlobalStats = asyncHandler(async (req, res) => {
   try {
-    // 1. Get MongoDB Count (Long-Term)
-    const mongoCount = await MemoryModel.countDocuments(); // Ensure 'Memory' is your MongoDB model
+    const mongoCount = await MemoryModel.countDocuments();
 
-    // 2. Get Redis Count (Short-Term) for 'mem' prefix only
-    // Using the pattern shown in your image: mem:[appId]
-    const keys = await redisClient.keys('mem:*'); 
+    const keys = await redisClient.keys("mem:*");
     const redisCount = keys.length;
 
     return res.status(200).json({
@@ -270,35 +277,67 @@ export const getGlobalStats = asyncHandler(async (req, res) => {
       data: {
         longTerm: mongoCount,
         shortTerm: redisCount,
-        total: mongoCount + redisCount
-      }
+        total: mongoCount + redisCount,
+      },
     });
   } catch (error) {
     console.error("Stats Error:", error);
-    res.status(500).json({ success: false, message: "Error calculating engine stats" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error calculating engine stats" });
   }
 });
 
 export const deleteApp = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const userId = req.user._id; // Attached by verifyAuth
+  const userId = req.user._id;
 
-  // 1. Find and delete only if the owner matches
   const deletedApp = await App.findOneAndDelete({
     _id: id,
-    owner: userId 
+    owner: userId,
   });
 
   if (!deletedApp) {
     return res.status(404).json({
       success: false,
-      message: "Application not found or unauthorized"
+      message: "Application not found or unauthorized",
     });
   }
 
-  // 2. Return success so frontend can update state
   return res.status(200).json({
     success: true,
-    message: "Application deleted successfully"
+    message: "Application deleted successfully",
+  });
+});
+
+export const deleteMemory = asyncHandler(async (req, res) => {
+  const { memoryId } = req.params;
+
+  if (!memoryId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Memory ID parameter is missing" });
+  }
+
+  let deleted = false;
+
+  if (mongoose.Types.ObjectId.isValid(memoryId)) {
+    const result = await MemoryModel.deleteOne({ _id: memoryId });
+    deleted = result.deletedCount > 0;
+  } else {
+    const result = await redisClient.del(memoryId);
+    deleted = result > 0;
+  }
+
+  if (!deleted) {
+    return res.status(404).json({
+      success: false,
+      message: "Memory not found in any storage engine",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Memory successfully removed",
   });
 });
