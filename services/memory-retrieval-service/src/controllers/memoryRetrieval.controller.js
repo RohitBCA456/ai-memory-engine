@@ -4,7 +4,7 @@ import { retrieveFromMongoDB } from "../service/retrievalFromMongoDB.service.js"
 import { retrieveFromRedis } from "../service/retrievalFromRedis.service.js";
 
 export const memoryRetrieval = asyncHandler(async (req, res) => {
-  const { memoryId } = req.body;
+  const { memoryId } = req.params;
 
   if (!memoryId) {
     return res.status(400).json({

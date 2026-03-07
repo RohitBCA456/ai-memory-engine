@@ -4,7 +4,7 @@ import { mongoDBMemoryDeletion } from "../services/deleteFromMongoDB.service.js"
 import { redisMemoryDeletion } from "../services/deleteFromRedis.service.js";
 
 export const memoryDeletion = asyncHandler(async (req, res) => {
-  const { memoryId } = req.body;
+  const { memoryId } = req.params;
 
   if (!memoryId) {
     return res.status(400).json({

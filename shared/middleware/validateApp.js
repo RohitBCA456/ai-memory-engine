@@ -6,6 +6,8 @@ import { connectToMongoDB } from "../connectors/mongodb.connector.js";
 export const validateApp = async (req, res, next) => {
   const apiKey = req.header("x-api-key");
 
+  console.log(apiKey)
+
   await connectToMongoDB();
   // This is the only place that talks to the App model
   const app = await App.findOne({ apiKey }).select("_id owner");
