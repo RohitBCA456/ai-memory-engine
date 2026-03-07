@@ -8,7 +8,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 export default function Sidebar() {
   const { isDarkMode } = useTheme();

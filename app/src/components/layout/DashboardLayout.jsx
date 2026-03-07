@@ -1,6 +1,6 @@
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
-import { useTheme } from '../../context/ThemeContext';
+import Sidebar from './Sidebar.jsx';
+import Navbar from './Navbar.jsx';
+import { useTheme } from '../../context/ThemeContext.jsx';
 
 export default function DashboardLayout({ children }) {
   const { isDarkMode } = useTheme();

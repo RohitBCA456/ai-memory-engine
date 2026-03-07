@@ -1,7 +1,7 @@
 // src/pages/CreateApp.jsx
 import React, { useState } from "react";
-import { useTheme } from "../context/ThemeContext";
-import { useAppAuth } from "../context/AuthContext"; // Import your auth hook
+import { useTheme } from "../context/ThemeContext.jsx";
+import { useAppAuth } from "../context/AuthContext.jsx"; // Import your auth hook
 import {
   PlusCircle,
   ShieldCheck,

@@ -1,8 +1,8 @@
 // src/pages/ManageApps.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
-import { useAppAuth } from "../context/AuthContext"; // Import your auth context
+import { useTheme } from "../context/ThemeContext.jsx";
+import { useAppAuth } from "../context/AuthContext.jsx"; // Import your auth context
 import {
   MoreVertical,
   Eye,

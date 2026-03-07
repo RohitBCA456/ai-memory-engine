@@ -11,13 +11,13 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { ThemeProvider } from "./context/ThemeContext";
-import DashboardLayout from "./components/layout/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import MemoryExplorer from "./pages/MemoryExplorer";
-import CreateApp from "./pages/createApp";
-import ManageApps from "./pages/ManageApps";
-import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
+import DashboardLayout from "./components/layout/DashboardLayout.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import MemoryExplorer from "./pages/MemoryExplorer.jsx";
+import CreateApp from "./pages/createApp.jsx";
+import ManageApps from "./pages/ManageApps.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 function App() {
   return (

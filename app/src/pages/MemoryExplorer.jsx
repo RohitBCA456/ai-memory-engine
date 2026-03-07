@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useTheme } from "../context/ThemeContext";
-import { useAppAuth } from "../context/AuthContext";
-import MemoryTable from "../components/ui/MemoryTable";
-import FilterBar from "../components/ui/FilterBar";
-import MemoryAnalytics from "../components/charts/MemoryAnalytics";
+import { useTheme } from "../context/ThemeContext.jsx";
+import { useAppAuth } from "../context/AuthContext.jsx";
+import MemoryTable from "../components/ui/MemoryTable.jsx";
+import FilterBar from "../components/ui/FilterBar.jsx";
+import MemoryAnalytics from "../components/charts/MemoryAnalytics.jsx";
 import { Loader2 } from "lucide-react";
 import { useParams } from "react-router-dom";
 

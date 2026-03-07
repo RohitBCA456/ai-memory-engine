@@ -1,6 +1,6 @@
 import React from 'react';
 import { Database, SortDesc } from 'lucide-react';
-import CustomSelect from './CustomSelect';
+import CustomSelect from './CustomSelect.jsx';
 
 export default function FilterBar({ typeFilter, setTypeFilter, timeSort, setTimeSort, isDarkMode }) {
 

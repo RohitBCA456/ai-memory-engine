@@ -1,8 +1,8 @@
 // src/pages/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { Database, Clock, Activity, BrainCircuit, Zap, ShieldCheck, Share2, Quote, Rocket } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
-import { useAppAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext.jsx';
+import { useAppAuth } from '../context/AuthContext.jsx';
 
 const StatCard = ({ title, value, icon: Icon, color, isDarkMode }) => (
   <div className={`p-6 rounded-2xl border shadow-sm transition-all duration-300 ${

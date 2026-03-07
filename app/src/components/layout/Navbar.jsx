@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.jsx
 import { Sun, Moon, LogOut } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
-import { useAppAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext.jsx';
+import { useAppAuth } from '../../context/AuthContext.jsx';
 import { useUser } from '@clerk/clerk-react';
 
 export default function Navbar() {
