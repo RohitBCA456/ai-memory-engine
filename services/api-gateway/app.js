@@ -6,7 +6,7 @@ import cors from "cors";
 dotenv.config();
 const app = express();
 
-const WAKE_UP_TIMEOUT = 30000;
+const WAKE_UP_TIMEOUT = 60000;
 
 app.use(
   cors({
