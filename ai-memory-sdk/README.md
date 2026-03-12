@@ -55,7 +55,7 @@ pnpm add ai-memory-engine-sdk
 
 Before using the SDK, you need an **API key** from the AI Memory Engine platform:
 
-1. Visit the [AI Memory Engine Dashboard](https://ai-memory-engine-6uby.onrender.com) and sign up.
+1. Visit the [AI Memory Engine Dashboard](https://ai-memory-engine.onrender.com) and sign up.
 2. Navigate to **Manage Apps** and create a new application.
 3. Copy your generated **API key** — you'll pass this to `AIMemoryClient`.
 
