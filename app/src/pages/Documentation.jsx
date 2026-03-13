@@ -1,7 +1,7 @@
 import React, { useState, useContext, createContext } from "react";
 import {
   Book, Terminal, Package, Database, Code2, ChevronRight,
-  Copy, Check, Zap, Shield, GitBranch, ExternalLink,
+  Copy, Check, Zap, Shield, GitBranch, ExternalLink, Menu, X as CloseIcon,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext.jsx";
 
@@ -58,7 +58,7 @@ function Table({ headers, rows }) {
         <thead>
           <tr style={{ background: dark ? "#1e293b" : "#f1f5f9" }}>
             {headers.map(h => (
-              <th key={h} style={{ padding: "10px 16px", textAlign: "left", color: dark ? "#94a3b8" : "#64748b", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", borderBottom: `1px solid ${dark ? "#334155" : "#e2e8f0"}` }}>{h}</th>
+              <th key={h} style={{ padding: "10px 16px", textAlign: "left", color: dark ? "#94a3b8" : "#64748b", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", borderBottom: `1px solid ${dark ? "#334155" : "#e2e8f0"}`, whiteSpace: "nowrap" }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -429,13 +429,131 @@ const sections = {
   },
 };
 
+// ─── Mobile Nav Dropdown ──────────────────────────────────────────────────────
+function MobileNav({ active, setActive, isDarkMode, t }) {
+  const [open, setOpen] = useState(false);
+  const activeSection = sections[active];
+
+  return (
+    <div style={{ position: "relative", marginBottom: 24 }}>
+      {/* Trigger button */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 16px",
+          background: isDarkMode ? "#1e293b" : "#f1f5f9",
+          border: `1px solid ${open ? "#6366f1" : (isDarkMode ? "#334155" : "#e2e8f0")}`,
+          borderRadius: open ? "12px 12px 0 0" : 12,
+          cursor: "pointer",
+          color: isDarkMode ? "#f1f5f9" : "#0f172a",
+          fontFamily: "'Inter','Segoe UI',sans-serif",
+          transition: "border-color 0.15s",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8,
+            background: "#6366f111",
+            border: "1px solid #6366f133",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#818cf8",
+          }}>
+            {activeSection.icon}
+          </div>
+          <span style={{ fontWeight: 600, fontSize: 14 }}>{activeSection.label}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 11, color: t.textMuted }}>{Object.keys(sections).indexOf(active) + 1}/{Object.keys(sections).length}</span>
+          <Menu size={16} color={t.textMuted} style={{ transform: open ? "rotate(90deg)" : "none", transition: "transform 0.2s" }} />
+        </div>
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: isDarkMode ? "#0f172a" : "#ffffff",
+          border: `1px solid ${isDarkMode ? "#334155" : "#e2e8f0"}`,
+          borderTop: "none",
+          borderRadius: "0 0 12px 12px",
+          overflow: "hidden",
+          boxShadow: isDarkMode
+            ? "0 16px 40px rgba(0,0,0,0.5)"
+            : "0 16px 40px rgba(15,23,42,0.12)",
+          animation: "dropIn 0.18s cubic-bezier(0.34,1.2,0.64,1)",
+        }}>
+          {Object.entries(sections).map(([key, sec], idx) => (
+            <button
+              key={key}
+              onClick={() => { setActive(key); setOpen(false); }}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "13px 16px",
+                background: active === key
+                  ? (isDarkMode ? "#6366f115" : "#6366f108")
+                  : "transparent",
+                border: "none",
+                borderBottom: idx < Object.keys(sections).length - 1
+                  ? `1px solid ${isDarkMode ? "#1e293b" : "#f1f5f9"}`
+                  : "none",
+                cursor: "pointer",
+                textAlign: "left",
+                color: active === key ? "#818cf8" : t.textMuted,
+                fontFamily: "'Inter','Segoe UI',sans-serif",
+                transition: "background 0.12s",
+              }}
+            >
+              <div style={{
+                width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+                background: active === key ? "#6366f122" : (isDarkMode ? "#1e293b" : "#f1f5f9"),
+                border: `1px solid ${active === key ? "#6366f144" : (isDarkMode ? "#334155" : "#e2e8f0")}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: active === key ? "#818cf8" : t.textMuted,
+              }}>
+                {sec.icon}
+              </div>
+              <span style={{ fontWeight: active === key ? 700 : 500, fontSize: 14 }}>{sec.label}</span>
+              {active === key && (
+                <ChevronRight size={14} style={{ marginLeft: "auto", color: "#6366f1" }} />
+              )}
+            </button>
+          ))}
+
+          {/* Install snippet at bottom of dropdown */}
+          <div style={{
+            padding: "12px 16px",
+            background: isDarkMode ? "#0f172a" : "#f8fafc",
+            borderTop: `1px solid ${isDarkMode ? "#1e293b" : "#e2e8f0"}`,
+            display: "flex", alignItems: "center", gap: 8,
+          }}>
+            <Terminal size={12} color="#6366f1" />
+            <code style={{ fontSize: 12, color: "#a78bfa", fontFamily: "'JetBrains Mono','Fira Code',monospace" }}>
+              npm i ai-memory-engine-sdk
+            </code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function Documentation() {
   const { isDarkMode } = useTheme();
   const [active, setActive] = useState("overview");
   const ActiveContent = sections[active].content;
 
-  // All theme tokens in one place — flip with isDarkMode
   const t = {
     bg:          isDarkMode ? "#020817"   : "#f8fafc",
     topbar:      isDarkMode ? "#020817dd" : "#ffffffdd",
@@ -449,36 +567,85 @@ export default function Documentation() {
 
   return (
     <DarkCtx.Provider value={isDarkMode}>
-      <div style={{ minHeight: "100vh", background: t.bg, color: t.textPrimary, fontFamily: "'Inter','Segoe UI',sans-serif", transition: "background 0.25s, color 0.25s" }}>
+      <div style={{
+        minHeight: "100vh",
+        background: t.bg,
+        color: t.textPrimary,
+        fontFamily: "'Inter','Segoe UI',sans-serif",
+        transition: "background 0.25s, color 0.25s",
+      }}>
 
-        {/* Top bar */}
-        <div style={{ position: "sticky", top: 0, zIndex: 50, background: t.topbar, backdropFilter: "blur(12px)", borderBottom: `1px solid ${t.border}`, padding: "0 32px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* ── Top bar ── */}
+        <div style={{
+          position: "sticky", top: 0, zIndex: 50,
+          background: t.topbar,
+          backdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${t.border}`,
+          padding: "0 16px",
+        }}>
+          <div style={{
+            maxWidth: 1200, margin: "0 auto",
+            height: 56,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            gap: 12,
+          }}>
+            {/* Brand */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
                 <Book size={14} color="white" />
               </div>
-              <span style={{ fontWeight: 800, fontSize: 15, color: t.textPrimary }}>AI Memory Engine</span>
-              <span style={{ color: t.textMuted, fontSize: 13, marginLeft: 4 }}>SDK Docs</span>
+              {/* Hide "SDK Docs" text on very small screens */}
+              <span style={{ fontWeight: 800, fontSize: 15, color: t.textPrimary, whiteSpace: "nowrap" }}>
+                AI Memory Engine
+              </span>
+              <span className="docs-topbar-sub" style={{ color: t.textMuted, fontSize: 13 }}>SDK Docs</span>
               <Badge color="#6366f1">v1.0.1</Badge>
             </div>
-            <div style={{ display: "flex", gap: 16 }}>
-              <a href="https://github.com/RohitBCA456/ai-memory-engine" target="_blank" rel="noopener noreferrer" style={{ color: t.textMuted, fontSize: 12, display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }}>
-                <GitBranch size={13} /> GitHub <ExternalLink size={10} />
+
+            {/* Links — hide labels on mobile */}
+            <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
+              <a
+                href="https://github.com/RohitBCA456/ai-memory-engine"
+                target="_blank" rel="noopener noreferrer"
+                style={{ color: t.textMuted, fontSize: 12, display: "flex", alignItems: "center", gap: 4, textDecoration: "none", whiteSpace: "nowrap" }}
+              >
+                <GitBranch size={13} />
+                <span className="docs-topbar-link-label">GitHub</span>
+                <ExternalLink size={10} />
               </a>
-              <a href="https://www.npmjs.com/package/ai-memory-engine-sdk" target="_blank" rel="noopener noreferrer" style={{ color: t.textMuted, fontSize: 12, display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }}>
-                <Package size={13} /> npm <ExternalLink size={10} />
+              <a
+                href="https://www.npmjs.com/package/ai-memory-engine-sdk"
+                target="_blank" rel="noopener noreferrer"
+                style={{ color: t.textMuted, fontSize: 12, display: "flex", alignItems: "center", gap: 4, textDecoration: "none", whiteSpace: "nowrap" }}
+              >
+                <Package size={13} />
+                <span className="docs-topbar-link-label">npm</span>
+                <ExternalLink size={10} />
               </a>
             </div>
           </div>
         </div>
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 32px", display: "flex", gap: 40 }}>
+        {/* ── Body ── */}
+        <div style={{
+          maxWidth: 1200, margin: "0 auto",
+          padding: "40px 16px",
+          display: "flex",
+          gap: 40,
+        }}>
 
-          {/* Sidebar */}
-          <aside style={{ width: 220, flexShrink: 0 }}>
+          {/* ── Desktop Sidebar (hidden on mobile via CSS class) ── */}
+          <aside className="docs-sidebar" style={{ width: 220, flexShrink: 0 }}>
             <div style={{ position: "sticky", top: 80 }}>
-              <div style={{ fontSize: 10, color: t.textMuted, textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 800, marginBottom: 16 }}>Navigation</div>
+              <div style={{
+                fontSize: 10, color: t.textMuted,
+                textTransform: "uppercase", letterSpacing: "0.15em",
+                fontWeight: 800, marginBottom: 16,
+              }}>Navigation</div>
               <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {Object.entries(sections).map(([key, sec]) => (
                   <button
@@ -486,7 +653,7 @@ export default function Documentation() {
                     onClick={() => setActive(key)}
                     style={{
                       background: active === key ? "#6366f111" : "transparent",
-                      border: active === key ? "1px solid #6366f133" : `1px solid transparent`,
+                      border: active === key ? "1px solid #6366f133" : "1px solid transparent",
                       borderRadius: 8, padding: "9px 12px", cursor: "pointer",
                       display: "flex", alignItems: "center", gap: 8, textAlign: "left",
                       color: active === key ? "#818cf8" : t.textMuted,
@@ -521,7 +688,8 @@ export default function Documentation() {
                   { label: "GitHub", href: "https://github.com/RohitBCA456/ai-memory-engine" },
                   { label: "npm", href: "https://www.npmjs.com/package/ai-memory-engine-sdk" },
                 ].map(l => (
-                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 4, color: t.textMuted, fontSize: 12, textDecoration: "none", padding: "3px 0" }}>
+                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer"
+                    style={{ display: "flex", alignItems: "center", gap: 4, color: t.textMuted, fontSize: 12, textDecoration: "none", padding: "3px 0" }}>
                     <ExternalLink size={10} /> {l.label}
                   </a>
                 ))}
@@ -529,8 +697,18 @@ export default function Documentation() {
             </div>
           </aside>
 
-          {/* Main content */}
+          {/* ── Main content ── */}
           <main style={{ flex: 1, minWidth: 0 }}>
+            {/* Mobile nav dropdown — shown only on mobile via CSS class */}
+            <div className="docs-mobile-nav">
+              <MobileNav
+                active={active}
+                setActive={setActive}
+                isDarkMode={isDarkMode}
+                t={t}
+              />
+            </div>
+
             {/* Breadcrumb */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 32, fontSize: 12, color: t.textMuted }}>
               <span>Docs</span>
@@ -543,7 +721,14 @@ export default function Documentation() {
             </div>
 
             {/* Footer */}
-            <div style={{ marginTop: 60, paddingTop: 24, borderTop: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11, color: t.textFaint, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <div style={{
+              marginTop: 60, paddingTop: 24,
+              borderTop: `1px solid ${t.border}`,
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              flexWrap: "wrap", gap: 8,
+              fontSize: 11, color: t.textFaint,
+              textTransform: "uppercase", letterSpacing: "0.1em",
+            }}>
               <span>© 2026 AI Memory Engine · ISC License</span>
               <span>Author: Rohit Yadav</span>
             </div>
@@ -553,10 +738,37 @@ export default function Documentation() {
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
           * { box-sizing: border-box; }
-          @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-8px) scaleY(0.96); }
+            to   { opacity: 1; transform: translateY(0) scaleY(1); }
+          }
+
           details summary::-webkit-details-marker { display: none; }
           strong { color: ${isDarkMode ? "#e2e8f0" : "#0f172a"}; }
           a { color: #818cf8; }
+
+          /* Desktop: show sidebar, hide mobile nav */
+          .docs-sidebar { display: block; }
+          .docs-mobile-nav { display: none; }
+          .docs-topbar-sub { display: inline; }
+          .docs-topbar-link-label { display: inline; }
+
+          /* Tablet / small desktop */
+          @media (max-width: 900px) {
+            .docs-sidebar { display: none !important; }
+            .docs-mobile-nav { display: block !important; }
+          }
+
+          /* Mobile */
+          @media (max-width: 600px) {
+            .docs-topbar-sub { display: none; }
+            .docs-topbar-link-label { display: none; }
+          }
         `}</style>
       </div>
     </DarkCtx.Provider>

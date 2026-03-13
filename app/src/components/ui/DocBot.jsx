@@ -15,42 +15,32 @@ const SUGGESTIONS = [
 ];
 
 const RAG_SERVICE_URL = "https://ai-memory-engine-6uby.onrender.com/rag-service";
-// ─── RAG hook — swap body of `queryRAG` with your LangChain.js call ───────────
-// ─── RAG hook — Connected to your Node.js Backend ────────────────────────────
+
+// ─── RAG hook ─────────────────────────────────────────────────────────────────
 function useRAG() {
   const query = useCallback(async (question, history) => {
     try {
       const response = await fetch(`${RAG_SERVICE_URL}/query`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           query: question,
-          // You can also pass history here if you update your backend to handle it
-          chatHistory: history.map(m => `${m.role}: ${m.content}`).join("\n")
+          chatHistory: history.map(m => `${m.role}: ${m.content}`).join("\n"),
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
 
       const data = await response.json();
-
-      // We extract the answer and the metadata 'sources' 
-      // based on the response format we built in the ragController
       return {
         answer: data.answer || "I couldn't find an answer for that.",
-        // If your backend doesn't explicitly send a 'sources' array, 
-        // we can flag it as "Documentation" for the UI.
-        sources: data.success ? ["Documentation Results"] : []
+        sources: data.success ? ["Documentation Results"] : [],
       };
     } catch (error) {
       console.error("RAG Query Failed:", error);
       return {
         answer: "⚠️ **System Offline:** I'm having trouble connecting to the RAG service. Please ensure the backend is running on port 4008.",
-        sources: []
+        sources: [],
       };
     }
   }, []);
@@ -58,7 +48,7 @@ function useRAG() {
   return { query };
 }
 
-// ─── Tiny markdown renderer (bold, inline code, newlines) ────────────────────
+// ─── Tiny markdown renderer ───────────────────────────────────────────────────
 function MiniMarkdown({ text, dark }) {
   const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\n)/g);
   return (
@@ -76,13 +66,13 @@ function MiniMarkdown({ text, dark }) {
 }
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
-function TypingDots({ dark }) {
+function TypingDots() {
   return (
     <div style={{ display: "flex", gap: 4, alignItems: "center", padding: "4px 0" }}>
       {[0, 1, 2].map(i => (
         <span key={i} style={{
           width: 6, height: 6, borderRadius: "50%",
-          background: dark ? "#6366f1" : "#6366f1",
+          background: "#6366f1",
           display: "inline-block",
           animation: `dotBounce 1.2s ease-in-out ${i * 0.2}s infinite`,
         }} />
@@ -92,7 +82,7 @@ function TypingDots({ dark }) {
 }
 
 // ─── Single message bubble ────────────────────────────────────────────────────
-function MessageBubble({ msg, dark, isLast }) {
+function MessageBubble({ msg, dark }) {
   const [copied, setCopied] = useState(false);
   const isUser = msg.role === "user";
 
@@ -138,9 +128,7 @@ function MessageBubble({ msg, dark, isLast }) {
           color: isUser ? "#ffffff" : (dark ? "#cbd5e1" : "#374151"),
           wordBreak: "break-word",
         }}>
-          {msg.typing
-            ? <TypingDots dark={dark} />
-            : <MiniMarkdown text={msg.content} dark={dark} />}
+          {msg.typing ? <TypingDots /> : <MiniMarkdown text={msg.content} dark={dark} />}
         </div>
 
         {/* Sources */}
@@ -160,7 +148,7 @@ function MessageBubble({ msg, dark, isLast }) {
           </div>
         )}
 
-        {/* Copy button — shows on hover */}
+        {/* Copy button */}
         {!isUser && !msg.typing && (
           <button
             onClick={copy}
@@ -191,6 +179,7 @@ export default function DocBot() {
   const [minimized, setMinimized] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -202,17 +191,34 @@ export default function DocBot() {
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
-  const listRef = useRef(null);
 
-  // Scroll to bottom whenever messages change
+  // ── Detect mobile ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // ── Scroll to bottom ──────────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input when opened
+  // ── Focus input when opened ───────────────────────────────────────────────
   useEffect(() => {
     if (open && !minimized) setTimeout(() => inputRef.current?.focus(), 150);
   }, [open, minimized]);
+
+  // ── Lock body scroll on mobile when panel is open ─────────────────────────
+  useEffect(() => {
+    if (isMobile && open && !minimized) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isMobile, open, minimized]);
 
   const sendMessage = useCallback(async (text) => {
     const question = (text || input).trim();
@@ -228,11 +234,10 @@ export default function DocBot() {
     try {
       const history = messages.filter(m => !m.typing);
       const { answer, sources } = await query(question, history);
-
       setMessages(prev => prev.map(m =>
         m.typing ? { ...m, content: answer, typing: false, sources: sources || [] } : m
       ));
-    } catch (err) {
+    } catch {
       setMessages(prev => prev.map(m =>
         m.typing ? { ...m, content: "Sorry, something went wrong. Please try again.", typing: false, sources: [] } : m
       ));
@@ -255,19 +260,59 @@ export default function DocBot() {
 
   const unreadCount = !open ? messages.filter(m => m.role === "assistant" && m.id !== 1).length : 0;
 
-  // ── Color tokens ─────────────────────────────────────────────────────────
+  // ── Color tokens ──────────────────────────────────────────────────────────
   const t = {
-    bg:       dark ? "#0f172a" : "#ffffff",
-    header:   dark ? "#0f172a" : "#ffffff",
-    border:   dark ? "#1e293b" : "#e2e8f0",
-    inputBg:  dark ? "#1e293b" : "#f8fafc",
-    chatBg:   dark ? "#020817" : "#f8fafc",
-    text:     dark ? "#e2e8f0" : "#1e293b",
-    muted:    dark ? "#64748b" : "#94a3b8",
-    shadow:   dark
+    bg:      dark ? "#0f172a" : "#ffffff",
+    header:  dark ? "#0f172a" : "#ffffff",
+    border:  dark ? "#1e293b" : "#e2e8f0",
+    inputBg: dark ? "#1e293b" : "#f8fafc",
+    chatBg:  dark ? "#020817" : "#f8fafc",
+    text:    dark ? "#e2e8f0" : "#1e293b",
+    muted:   dark ? "#64748b" : "#94a3b8",
+    shadow:  dark
       ? "0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px #1e293b"
       : "0 24px 64px rgba(15,23,42,0.15), 0 0 0 1px #e2e8f0",
   };
+
+  // ── Panel sizing: full-screen on mobile, floating on desktop ──────────────
+  const panelStyle = isMobile
+    ? {
+        position: "fixed",
+        // On mobile: full-screen overlay anchored to bottom
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: minimized ? "auto" : 0,
+        zIndex: 9998,
+        borderRadius: minimized ? "20px 20px 0 0" : 0,
+        display: "flex",
+        flexDirection: "column",
+        background: t.bg,
+        border: `1px solid ${t.border}`,
+        boxShadow: t.shadow,
+        animation: "panelIn 0.3s cubic-bezier(0.34,1.2,0.64,1)",
+        height: minimized ? "auto" : "100dvh",
+        fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+      }
+    : {
+        // Desktop: floating panel bottom-right
+        position: "fixed",
+        bottom: 96,
+        right: 28,
+        zIndex: 9998,
+        width: 380,
+        borderRadius: 20,
+        overflow: "hidden",
+        background: t.bg,
+        border: `1px solid ${t.border}`,
+        boxShadow: t.shadow,
+        animation: "panelIn 0.3s cubic-bezier(0.34,1.2,0.64,1)",
+        display: "flex",
+        flexDirection: "column",
+        height: minimized ? "auto" : 540,
+        transition: "height 0.3s cubic-bezier(0.4,0,0.2,1)",
+        fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+      };
 
   return (
     <>
@@ -289,6 +334,10 @@ export default function DocBot() {
         @keyframes panelIn {
           from { opacity: 0; transform: translateY(16px) scale(0.96); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes panelInMobile {
+          from { opacity: 0; transform: translateY(100%); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulse {
           0%, 100% { box-shadow: 0 0 0 0 #6366f160; }
@@ -320,13 +369,19 @@ export default function DocBot() {
       <button
         onClick={() => { setOpen(o => !o); setMinimized(false); }}
         style={{
-          position: "fixed", bottom: 28, right: 28, zIndex: 9999,
+          position: "fixed",
+          bottom: isMobile ? 20 : 28,
+          right: isMobile ? 20 : 28,
+          zIndex: 9999,
           width: 56, height: 56, borderRadius: "50%", border: "none",
           background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
           cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
           boxShadow: "0 8px 32px #6366f150, 0 2px 8px rgba(0,0,0,0.2)",
           animation: open ? "none" : "pulse 2.5s ease-in-out infinite",
           transition: "transform 0.2s, box-shadow 0.2s",
+          // On mobile, hide FAB when chat is fully open (not minimized)
+          opacity: (isMobile && open && !minimized) ? 0 : 1,
+          pointerEvents: (isMobile && open && !minimized) ? "none" : "auto",
         }}
         title={open ? "Close DocBot" : "Ask DocBot"}
       >
@@ -334,9 +389,7 @@ export default function DocBot() {
           animation: "botPop 0.4s cubic-bezier(0.34,1.56,0.64,1)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          {open
-            ? <ChevronDown size={22} color="white" />
-            : <Sparkles size={22} color="white" />}
+          {open ? <ChevronDown size={22} color="white" /> : <Sparkles size={22} color="white" />}
         </div>
 
         {/* Unread badge */}
@@ -353,17 +406,7 @@ export default function DocBot() {
 
       {/* ── Chat panel ── */}
       {open && (
-        <div style={{
-          position: "fixed", bottom: 96, right: 28, zIndex: 9998,
-          width: 380, borderRadius: 20, overflow: "hidden",
-          background: t.bg, border: `1px solid ${t.border}`,
-          boxShadow: t.shadow,
-          animation: "panelIn 0.3s cubic-bezier(0.34,1.2,0.64,1)",
-          display: "flex", flexDirection: "column",
-          height: minimized ? "auto" : 540,
-          transition: "height 0.3s cubic-bezier(0.4,0,0.2,1)",
-          fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-        }}>
+        <div style={panelStyle}>
 
           {/* Header */}
           <div style={{
@@ -372,8 +415,10 @@ export default function DocBot() {
             borderBottom: `1px solid ${t.border}`,
             display: "flex", alignItems: "center", gap: 10,
             flexShrink: 0,
+            // Safe area for iPhone notch / dynamic island
+            paddingTop: isMobile && !minimized ? "max(14px, env(safe-area-inset-top))" : "14px",
           }}>
-            {/* Bot avatar with live dot */}
+            {/* Bot avatar */}
             <div style={{ position: "relative", flexShrink: 0 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: "50%",
@@ -403,9 +448,12 @@ export default function DocBot() {
               <button className="clear-btn" onClick={clearChat} title="Clear chat" style={{ background: "none", border: "none", cursor: "pointer", color: t.muted, padding: 6, borderRadius: 8, transition: "color 0.15s" }}>
                 <RotateCcw size={14} />
               </button>
-              <button className="minimize-btn" onClick={() => setMinimized(m => !m)} title={minimized ? "Expand" : "Minimize"} style={{ background: "none", border: "none", cursor: "pointer", color: t.muted, padding: 6, borderRadius: 8, transition: "color 0.15s" }}>
-                <Minimize2 size={14} />
-              </button>
+              {/* Only show minimize on desktop */}
+              {!isMobile && (
+                <button className="minimize-btn" onClick={() => setMinimized(m => !m)} title={minimized ? "Expand" : "Minimize"} style={{ background: "none", border: "none", cursor: "pointer", color: t.muted, padding: 6, borderRadius: 8, transition: "color 0.15s" }}>
+                  <Minimize2 size={14} />
+                </button>
+              )}
               <button className="close-btn" onClick={() => setOpen(false)} title="Close" style={{ background: "none", border: "none", cursor: "pointer", color: t.muted, padding: 6, borderRadius: 8, transition: "color 0.15s" }}>
                 <X size={14} />
               </button>
@@ -416,21 +464,18 @@ export default function DocBot() {
           {!minimized && (
             <>
               {/* Messages */}
-              <div
-                ref={listRef}
-                style={{
-                  flex: 1, overflowY: "auto", padding: "16px 14px",
-                  background: t.chatBg,
-                  display: "flex", flexDirection: "column", gap: 14,
-                }}
-              >
+              <div style={{
+                flex: 1, overflowY: "auto", padding: "16px 14px",
+                background: t.chatBg,
+                display: "flex", flexDirection: "column", gap: 14,
+              }}>
                 {messages.map(msg => (
                   <MessageBubble key={msg.id} msg={msg} dark={dark} />
                 ))}
                 <div ref={bottomRef} />
               </div>
 
-              {/* Suggestions — shown only when no user messages yet */}
+              {/* Suggestions */}
               {messages.length === 1 && (
                 <div style={{
                   padding: "8px 14px 10px",
@@ -460,7 +505,8 @@ export default function DocBot() {
 
               {/* Input */}
               <div style={{
-                padding: "10px 12px 12px",
+                padding: "10px 12px",
+                paddingBottom: isMobile ? "max(12px, env(safe-area-inset-bottom))" : "12px",
                 background: t.bg,
                 borderTop: `1px solid ${t.border}`,
                 flexShrink: 0,
@@ -508,7 +554,11 @@ export default function DocBot() {
                   </button>
                 </div>
                 <div style={{ textAlign: "center", marginTop: 7, fontSize: 10, color: t.muted, letterSpacing: "0.02em" }}>
-                  Powered by AI Memory Engine RAG · Press <kbd style={{ background: dark ? "#1e293b" : "#e2e8f0", borderRadius: 3, padding: "0 4px", fontSize: 9, fontFamily: "monospace" }}>Enter</kbd> to send
+                  Powered by AI Memory Engine RAG ·{" "}
+                  {!isMobile && (
+                    <>Press <kbd style={{ background: dark ? "#1e293b" : "#e2e8f0", borderRadius: 3, padding: "0 4px", fontSize: 9, fontFamily: "monospace" }}>Enter</kbd> to send</>
+                  )}
+                  {isMobile && "Tap ➤ to send"}
                 </div>
               </div>
             </>
