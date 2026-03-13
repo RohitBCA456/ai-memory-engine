@@ -15,7 +15,7 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import MemoryExplorer from "./pages/MemoryExplorer.jsx";
-import CreateApp from "./pages/createApp.jsx";
+import CreateApp from "./pages/CreateApp.jsx";
 import ManageApps from "./pages/ManageApps.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import Documentation from "./pages/Documentation.jsx";
