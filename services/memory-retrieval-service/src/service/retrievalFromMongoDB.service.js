@@ -5,7 +5,6 @@ export const retrieveFromMongoDB = asyncHandler(async (memoryId) => {
   const document = await MemoryModel.findOne({ _id: memoryId });
 
   if (!document) {
-    console.log("No document found for ID:", memoryId);
     return null;
   }
 

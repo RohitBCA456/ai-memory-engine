@@ -25,9 +25,7 @@ async function getEmbedding(text) {
         err.message?.toLowerCase().includes("loading") &&
         attempt < maxRetries
       ) {
-        console.log(
-          `HF model loading... retrying in 20s (attempt ${attempt})`,
-        );
+       
         await new Promise((r) => setTimeout(r, 20000));
         continue;
       }

@@ -31,12 +31,10 @@ export const AuthProvider = ({ children }) => {
           });
 
           const result = await response.json();
-          console.log("Save Credentials Response:", result);
 
           if (result.success) {
             // We set the user in state; since you aren't using localStorage,
             // ensure your backend is setting an HttpOnly cookie
-            console.log("Setting dbUser with data:", result.data);
             setDbUser(result.data);
           }
         } catch (error) {

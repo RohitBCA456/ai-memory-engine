@@ -13,7 +13,6 @@ export const generateScoreForLongTerm = asyncHandler(async (userId, text) => {
 
   const matched = result[0];
 
-  console.log("Similar long-term memory found:", matched);
 
   return {
     score: matched.score,

@@ -17,7 +17,6 @@ export const ingestMemory = asyncHandler(async (userId, content, appId) => {
     createdAt: new Date(),
   };
 
-  console.log(memory);
 
   await publishMemoryIngested(EVENTS.MEMORY_INGESTED, memory);
 

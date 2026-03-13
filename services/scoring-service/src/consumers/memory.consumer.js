@@ -9,13 +9,11 @@ import { publishScoreGenerated } from "../adapters/event.publisher.js";
 
 export const consumeMemoryEmbedding = asyncHandler(async () => {
   await consumeEvent(EVENTS.EMBEDDING_CREATED, async (data) => {
-    console.log("Received memory embedding for scoring:", data);
 
     if (data && data.embedding) {
       if (data.type === "short-term") {
         const score = await generateScoreForShortTerm(data.userId, data.content);
 
-        console.log("Generated score for short-term memory:", score);
 
         const memory = {
           ...data,
@@ -29,7 +27,6 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
       } else {
         const score = await generateScoreForLongTerm(data.userId, data.content);
 
-        console.log("Generated score for long-term memory:", score);
 
         const memory = {
           ...data,
@@ -43,7 +40,7 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
         await publishScoreGenerated(EVENTS.MEMORY_SCORED, memory);
       }
     } else {
-      console.log("Fields are missing.");
+      return "Fields are missing";
     }
   });
 });
