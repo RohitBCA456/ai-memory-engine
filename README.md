@@ -258,7 +258,7 @@ console.log(response);
 
 ## API Reference
 
-All requests go through the **API Gateway** at `http://localhost:4000` and require an `x-api-key` header.
+All requests go through the **API Gateway** at `https://ai-memory-engine-6uby.onrender.com` and require an `x-api-key` header.
 
 | Method | Endpoint | Description |
 |---|---|---|

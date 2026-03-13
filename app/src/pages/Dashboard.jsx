@@ -43,7 +43,7 @@ export default function Dashboard() {
   const fetchRealStats = async () => {
     try {
       const token = dbUser?.token || dbUser?.webToken;
-      const response = await fetch("http://localhost:4000/user-service/global-stats", {
+      const response = await fetch("https://ai-memory-engine-6uby.onrender.com/user-service/global-stats", {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"

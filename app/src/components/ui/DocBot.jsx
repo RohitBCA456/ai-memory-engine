@@ -14,7 +14,7 @@ const SUGGESTIONS = [
   "How do I handle cold-start timeouts?",
 ];
 
-const RAG_SERVICE_URL = "http://localhost:4000/rag-service";
+const RAG_SERVICE_URL = "https://ai-memory-engine-6uby.onrender.com/rag-service";
 // ─── RAG hook — swap body of `queryRAG` with your LangChain.js call ───────────
 // ─── RAG hook — Connected to your Node.js Backend ────────────────────────────
 function useRAG() {
