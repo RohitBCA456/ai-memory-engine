@@ -2,7 +2,7 @@ import AIMemoryClient from "./index.js";
 
 // Initialize with only the API Key
 const client = new AIMemoryClient(
-  "cb7202a9c8ce550edd5e164def593d6ef1db27189a979ba9faed97510f046983",
+  "YOUR_API_KEY",
 );
 
 async function runTest() {
@@ -10,8 +10,8 @@ async function runTest() {
   try {
     console.log("📥 Testing Ingestion...");
     const ingestResult = await client.ingest(
-      "user_test_123",
-      "Testing the hardcoded gateway SDK.",
+      "user_id",
+      "I work a hcl",
     );
     console.log(
       "✅ Ingest Success:",
@@ -20,7 +20,7 @@ async function runTest() {
 
     // Test Retrieval with a known ID from your DB
     console.log("🔍 Testing Retrieval...");
-    const retrieveResult = await client.retrieve("69ad7bb7af2212d9b502dce9");
+    const retrieveResult = await client.retrieve("user_id");
     console.log("✅ Retrieval Success");
   } catch (error) {
     console.error("❌ Test Failed:", error.message);
