@@ -684,7 +684,7 @@ export default function Documentation() {
                   <Zap size={12} /> Quick Links
                 </div>
                 {[
-                  { label: "Dashboard", href: "https://ai-memory-engine-6uby.onrender.com" },
+                  { label: "Dashboard", href: "/dashboard" },
                   { label: "GitHub", href: "https://github.com/RohitBCA456/ai-memory-engine" },
                   { label: "npm", href: "https://www.npmjs.com/package/ai-memory-engine-sdk" },
                 ].map(l => (

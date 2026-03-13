@@ -30,7 +30,7 @@ const commonProxyOptions = {
 app.use("/memory-service", proxy(config.routes.memory, commonProxyOptions));
 app.use("/retrieval-service", proxy(config.routes.retrieval, commonProxyOptions));
 app.use("/deletion-service", proxy(config.routes.deletion, commonProxyOptions));
-app.use("/RAG-service", proxy(config.routes.RAG, commonProxyOptions));
+app.use("/rag-service", proxy(config.routes.RAG, commonProxyOptions));
 
 app.use(
   "/user-service",
