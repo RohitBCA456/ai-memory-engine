@@ -1,16 +1,13 @@
 import express from "express";
 import proxy from "express-http-proxy";
-import dotenv from "dotenv";
 import cors from "cors";
+import { config } from "./config.js"; 
 
-dotenv.config();
 const app = express();
-
-const WAKE_UP_TIMEOUT = 120000;
 
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGIN,
+    origin: config.allowedOrigin,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -18,8 +15,8 @@ app.use(
 );
 
 const commonProxyOptions = {
-  proxyTimeout: WAKE_UP_TIMEOUT,
-  timeout: WAKE_UP_TIMEOUT,
+  proxyTimeout: config.timeout,
+  timeout: config.timeout,
   proxyErrorHandler: (err, res, next) => {
     if (err.code === "ECONNABORTED" || err.code === "ETIMEDOUT") {
       return res
@@ -30,19 +27,14 @@ const commonProxyOptions = {
   },
 };
 
-app.use("/memory-service", proxy(process.env.MEMORY_ROUTE, commonProxyOptions));
-app.use(
-  "/retrieval-service",
-  proxy(process.env.RETRIEVAL_ROUTE, commonProxyOptions),
-);
-app.use(
-  "/deletion-service",
-  proxy(process.env.DELETION_ROUTE, commonProxyOptions),
-);
+app.use("/memory-service", proxy(config.routes.memory, commonProxyOptions));
+app.use("/retrieval-service", proxy(config.routes.retrieval, commonProxyOptions));
+app.use("/deletion-service", proxy(config.routes.deletion, commonProxyOptions));
+app.use("/RAG-service", proxy(config.routes.RAG, commonProxyOptions));
 
 app.use(
   "/user-service",
-  proxy(process.env.USER_ROUTE, {
+  proxy(config.routes.user, {
     ...commonProxyOptions,
     proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
       if (srcReq.headers["authorization"]) {
@@ -53,6 +45,6 @@ app.use(
   }),
 );
 
-app.listen(process.env.PORT, () => {
-  console.log("Gateway service running on port : ", process.env.PORT);
+app.listen(config.port, () => {
+  console.log(`Gateway running in ${config.isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode on port ${config.port}`);
 });

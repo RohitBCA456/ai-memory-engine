@@ -1,7 +1,8 @@
 import axios from "axios";
+import { config } from "../../config.js";
 
 const classifierClient = axios.create({
-  baseURL: "https://memory-engine-classifier.onrender.com",
+  baseURL: config.services.classifier,
   timeout: 120000,
   headers: { "Content-Type": "application/json" },
 });

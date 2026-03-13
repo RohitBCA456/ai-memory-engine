@@ -1,32 +1,66 @@
-import Sidebar from './Sidebar.jsx';
-import Navbar from './Navbar.jsx';
-import { useTheme } from '../../context/ThemeContext.jsx';
+import React, { useState, useCallback } from "react";
+import Sidebar from "./Sidebar.jsx";
+import Navbar from "./Navbar.jsx";
+import DocBot, { SIDE_PANEL_WIDTH } from "../ui/DocBot.jsx";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 export default function DashboardLayout({ children }) {
   const { isDarkMode } = useTheme();
 
+  const [botOpen, setBotOpen] = useState(false);
+  const [botMode, setBotMode] = useState("float");
+
+  const handleBotStateChange = useCallback((open, mode) => {
+    setBotOpen(open);
+    setBotMode(mode);
+  }, []);
+
+  const sideOpen = botOpen && botMode === "side";
+
   return (
-    // overflow-x-hidden on the root is the safety net
-    <div className={`flex min-h-screen w-full overflow-x-hidden transition-colors duration-300 ${
-      isDarkMode ? "bg-black text-white" : "bg-gray-50 text-gray-900"
-    }`}>
-      <Sidebar />
-      
-      {/* min-w-0 is the "magic" fix for flex children. 
-          It allows the container to shrink smaller than its content.
-      */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        <Navbar />
-        
-        {/* Added mt-16 to clear the mobile sticky sidebar header.
-            overflow-x-hidden here ensures children like charts stay bounded.
-        */}
-        <main className="p-4 md:p-8 flex-1 w-full max-w-full overflow-x-hidden mt-16 md:mt-0">
-          <div className="max-w-7xl mx-auto w-full">
-            {children}
-          </div>
+    // Outer wrapper is now a COLUMN so Navbar sits above everything
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        background: isDarkMode ? "#020817" : "#f8fafc",
+        transition: "background 0.2s",
+      }}
+    >
+      {/* ── Top navbar — full width ── */}
+      <Navbar />
+
+      {/* ── Body row: sidebar + page content ── */}
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          alignItems: "stretch",
+          marginRight: sideOpen ? SIDE_PANEL_WIDTH : 0,
+          transition: "margin-right 0.3s cubic-bezier(0.4,0,0.2,1)",
+        }}
+      >
+        {/* Left sidebar */}
+        <Sidebar />
+
+        {/* Page content */}
+        <main
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            padding: "32px",
+            overflowX: "hidden",
+          }}
+        >
+          {children}
         </main>
       </div>
+
+      {/* DocBot — floats or docks as side panel */}
+      <DocBot onStateChange={handleBotStateChange} />
     </div>
   );
 }

@@ -25,7 +25,7 @@ export default function ManageApps() {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
 
-  const GATEWAY_URL = "https://memory-engine-user-service.onrender.com/manage-app";
+  const GATEWAY_URL = "http://localhost:4000/user-service/manage-app";
 
   // Fetch real apps from the Gateway
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function ManageApps() {
         const token = dbUser?.token || dbUser?.webToken;
 
         const response = await fetch(
-          `https://memory-engine-user-service.onrender.com/delete-app/${id}`,
+          `http://localhost:4000/user-service/delete-app/${id}`,
           {
             method: "DELETE",
             headers: {

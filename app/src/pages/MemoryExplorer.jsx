@@ -20,7 +20,7 @@ export default function MemoryExplorer() {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "https://memory-engine-user-service.onrender.com";
+  const BASE_URL = "http://localhost:4000/user-service";
 
   useEffect(() => {
     const fetchExplorerData = async () => {
@@ -66,7 +66,7 @@ export default function MemoryExplorer() {
       const token = dbUser?.token || dbUser?.webToken;
 
       const response = await fetch(
-        `https://memory-engine-user-service.onrender.com/delete-memory/${memoryId}`,
+        `http://localhost:4000/user-service/delete-memory/${memoryId}`,
         {
           method: "DELETE",
           headers: {

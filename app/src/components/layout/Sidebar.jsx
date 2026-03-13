@@ -13,7 +13,7 @@ import { useTheme } from "../../context/ThemeContext.jsx";
 export default function Sidebar() {
   const { isDarkMode } = useTheme();
   const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false); // Mobile menu state
+  const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -39,7 +39,7 @@ export default function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
-              onClick={() => setIsOpen(false)} // Close menu on click
+              onClick={() => setIsOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                 isActive
                   ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
@@ -83,8 +83,15 @@ export default function Sidebar() {
       )}
 
       {/* --- DESKTOP SIDEBAR --- */}
+      {/*
+        KEY CHANGES:
+        - Removed `h-screen` (fixed height that cuts short on tall pages)
+        - Added `self-stretch` so the sidebar stretches to match sibling column height
+        - Added `min-h-screen` as a fallback floor
+        - The parent layout wrapper must use `flex items-stretch` (see note below)
+      */}
       <aside
-        className={`w-64 border-r transition-colors duration-300 hidden md:flex flex-col h-screen sticky top-0 ${
+        className={`w-64 border-r transition-colors duration-300 hidden md:flex flex-col self-stretch min-h-screen sticky top-0 ${
           isDarkMode ? "bg-gray-950 border-gray-800" : "bg-white border-gray-200"
         }`}
       >

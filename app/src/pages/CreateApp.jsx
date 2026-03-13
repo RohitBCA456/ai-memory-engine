@@ -29,7 +29,7 @@ export default function CreateApp() {
     setIsLoading(true);
 
     try {
-      const GATEWAY_URL = "https://memory-engine-user-service.onrender.com/create-app";
+      const GATEWAY_URL = "http://localhost:4000/user-service/user-service/create-app";
       const token = dbUser?.token || dbUser?.webToken;
 
       const response = await fetch(GATEWAY_URL, {

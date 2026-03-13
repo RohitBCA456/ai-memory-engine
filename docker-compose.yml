@@ -86,6 +86,14 @@ services:
     env_file: .env
     networks:
       - ai-memory-network
+  
+  rag-service: 
+    build:
+      context: .
+      dockerfile: services/RAG-service/Dockerfile
+    env_file: .env
+    networks: 
+    - ai-memory-network
 
 networks:
   ai-memory-network:

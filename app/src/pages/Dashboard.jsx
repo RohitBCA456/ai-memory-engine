@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Database, Clock, Activity, BrainCircuit, Zap, ShieldCheck, Share2, Quote, Rocket } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useAppAuth } from '../context/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const StatCard = ({ title, value, icon: Icon, color, isDarkMode }) => (
   <div className={`p-6 rounded-2xl border shadow-sm transition-all duration-300 ${
@@ -36,12 +37,13 @@ export default function Dashboard() {
   const { isDarkMode } = useTheme();
   const { dbUser } = useAppAuth();
   const [stats, setStats] = useState({ longTerm: 0, shortTerm: 0, total: 0 });
+  const navigate = useNavigate();
 
  useEffect(() => {
   const fetchRealStats = async () => {
     try {
       const token = dbUser?.token || dbUser?.webToken;
-      const response = await fetch("https://memory-engine-user-service.onrender.com/global-stats", {
+      const response = await fetch("http://localhost:4000/user-service/global-stats", {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -155,7 +157,9 @@ export default function Dashboard() {
             Connect your Node.js application to the AI Memory Engine using your API key. 
           </p>
         </div>
-        <button className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all shadow-lg">
+        <button 
+        onClick={() => navigate("/view-docs")}
+        className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-all shadow-lg">
           View Documentation
         </button>
       </div>

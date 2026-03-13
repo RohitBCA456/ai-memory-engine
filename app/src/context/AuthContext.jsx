@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Define the base URL for your User Service
-  const USER_SERVICE_URL = "https://memory-engine-user-service.onrender.com";
+  const USER_SERVICE_URL = "http://localhost:4000/user-service";
 
   useEffect(() => {
     const syncUserWithDb = async () => {
@@ -59,7 +59,7 @@ const logout = async () => {
     const token = dbUser?.token || dbUser?.webToken; 
 
     // 2. Call the backend - We only need the Authorization header
-    await fetch(`https://memory-engine-user-service.onrender.com/logout`, {
+    await fetch(`http://localhost:4000/user-service/logout`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}` 

@@ -15,17 +15,21 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import MemoryExplorer from "./pages/MemoryExplorer.jsx";
-import CreateApp from "./pages/CreateApp.jsx";
+import CreateApp from "./pages/createApp.jsx";
 import ManageApps from "./pages/ManageApps.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import Documentation from "./pages/Documentation.jsx";
+import DocBot from "./components/ui/DocBot.jsx";
+import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          <ScrollToTop /> {/* ← place right inside Router, before Routes */}
           <Routes>
-            {/* Clerk UI Routes */}
+
             <Route
               path="/login"
               element={
@@ -44,7 +48,6 @@ function App() {
               }
             />
 
-            {/* Protected Dashboard Routes */}
             <Route
               path="/dashboard"
               element={
@@ -96,6 +99,16 @@ function App() {
                     <ManageApps />
                   </DashboardLayout>
                 </SignedIn>
+              }
+            />
+
+            <Route
+              path="/view-docs"
+              element={
+                <>
+                  <Documentation />
+                  <DocBot />
+                </>
               }
             />
 
