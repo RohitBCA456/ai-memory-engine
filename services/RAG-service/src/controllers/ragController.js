@@ -12,7 +12,7 @@ async function getEmbedding(text) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const output = await hf.featureExtraction({
-        model: "BAAI/bge-small-en-v1.5", 
+        model: "BAAI/bge-small-en-v1.5",
         inputs: text,
       });
 
@@ -25,7 +25,6 @@ async function getEmbedding(text) {
         err.message?.toLowerCase().includes("loading") &&
         attempt < maxRetries
       ) {
-       
         await new Promise((r) => setTimeout(r, 20000));
         continue;
       }
@@ -64,7 +63,8 @@ async function queryPinecone(vector, topK = 4) {
 
 async function generateAnswer(question, context) {
   if (GEMINI_KEY) {
-    const prompt = `You are DocBot, a helpful assistant for the AI Memory Engine SDK.
+    try {
+      const prompt = `You are DocBot, a helpful assistant for the AI Memory Engine SDK.
 Answer using ONLY the context below. If the answer is not in the context, say "I don't have that information in the docs."
 Be concise. Use backticks for code. Never invent API methods not in the context.
 
@@ -74,29 +74,33 @@ ${context}
 Question: ${question}
 Answer:`;
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
-        }),
-      },
-    );
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(
-        `Gemini error: ${body?.error?.message || res.statusText}`,
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
+          }),
+        },
       );
-    }
 
-    const data = await res.json();
-    return (
-      data.candidates?.[0]?.content?.parts?.[0]?.text ?? "No answer generated."
-    );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(
+          `Gemini error: ${body?.error?.message || res.statusText}`,
+        );
+      }
+
+      const data = await res.json();
+      return (
+        data.candidates?.[0]?.content?.parts?.[0]?.text ??
+        "No answer generated."
+      );
+    } catch (error) {
+      console.error("Gemini fallback triggered due to error:", error.message);
+    }
   }
 
   const response = await hf.chatCompletion({
