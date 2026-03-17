@@ -29,7 +29,7 @@ export default function CreateApp() {
     setIsLoading(true);
 
     try {
-      const GATEWAY_URL = "https://ai-memory-engine-6uby.onrender.com/user-service/user-service/create-app";
+      const GATEWAY_URL = "https://ai-memory-engine-6uby.onrender.com/user-service/create-app";
       const token = dbUser?.token || dbUser?.webToken;
 
       const response = await fetch(GATEWAY_URL, {

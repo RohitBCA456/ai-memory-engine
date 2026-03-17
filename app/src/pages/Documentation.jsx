@@ -1,42 +1,43 @@
-import React, { useState, useContext, createContext } from "react";
+import React, { useState, useContext, createContext, useEffect } from "react";
 import {
   Book, Terminal, Package, Database, Code2, ChevronRight,
   Copy, Check, Zap, Shield, GitBranch, ExternalLink, Menu, X as CloseIcon,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext.jsx";
-
-// ─── Internal context so every sub-component can read isDarkMode ──────────────
 const DarkCtx = createContext(false);
 const useDark = () => useContext(DarkCtx);
 
-// ─── Syntax highlighter (code blocks always stay dark-themed) ─────────────────
-function highlight(code) {
-  return code
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/(\/\/[^\n]*)/g, '<span style="color:#6b7280;font-style:italic">$1</span>')
-    .replace(/\b(import|export|default|from|const|let|var|async|await|function|return|new|class|if|else|for|try|catch|throw|true|false|null|undefined)\b/g,
-      '<span style="color:#60a5fa">$1</span>')
-    .replace(/\b(string|number|boolean|object|Promise|Error)\b/g,
-      '<span style="color:#34d399">$1</span>')
-    .replace(/(["'`])((?:\\.|(?!\1)[^\\])*)\1/g,
-      '<span style="color:#fbbf24">$1$2$1</span>')
-    .replace(/\b(\d+)\b/g, '<span style="color:#f87171">$1</span>');
-}
-
-// ─── Base components ──────────────────────────────────────────────────────────
 function CodeBlock({ code, language = "js" }) {
   const [copied, setCopied] = useState(false);
+  const dark = useDark();
   const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  
+  const blockColors = dark ? {
+    bg: "#0d1117",
+    border: "#30363d",
+    headerBg: "#161b22",
+    headerText: "#8b949e",
+    codeText: "#c9d1d9",
+    copySuccess: "#3fb950",
+  } : {
+    bg: "#f6f8fa",
+    border: "#d0d7de",
+    headerBg: "#ffffff",
+    headerText: "#57606a",
+    codeText: "#24292f",
+    copySuccess: "#1a7f37",
+  };
+
   return (
-    <div style={{ background: "#0d1117", borderRadius: 12, overflow: "hidden", border: "1px solid #21262d", margin: "16px 0", fontFamily: "'JetBrains Mono','Fira Code',monospace" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 16px", background: "#161b22", borderBottom: "1px solid #21262d" }}>
-        <span style={{ color: "#8b949e", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em" }}>{language}</span>
-        <button onClick={copy} style={{ background: "none", border: "none", cursor: "pointer", color: copied ? "#34d399" : "#8b949e", display: "flex", alignItems: "center", gap: 4, fontSize: 11 }}>
+    <div style={{ background: blockColors.bg, borderRadius: 12, overflow: "hidden", border: `1px solid ${blockColors.border}`, margin: "16px 0", fontFamily: "'JetBrains Mono','Fira Code',monospace" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 16px", background: blockColors.headerBg, borderBottom: `1px solid ${blockColors.border}` }}>
+        <span style={{ color: blockColors.headerText, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em" }}>{language}</span>
+        <button onClick={copy} style={{ background: "none", border: "none", cursor: "pointer", color: copied ? blockColors.copySuccess : blockColors.headerText, display: "flex", alignItems: "center", gap: 4, fontSize: 11 }}>
           {copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
         </button>
       </div>
-      <pre style={{ margin: 0, padding: "20px", overflowX: "auto", fontSize: 13, lineHeight: 1.7, color: "#e6edf3" }}>
-        <code dangerouslySetInnerHTML={{ __html: highlight(code) }} />
+      <pre style={{ margin: 0, padding: "20px", overflowX: "auto", fontSize: 13, lineHeight: 1.7, color: blockColors.codeText }}>
+        <code>{code}</code>
       </pre>
     </div>
   );
@@ -180,7 +181,6 @@ function StepRow({ n, text }) {
   );
 }
 
-// ─── Section content ──────────────────────────────────────────────────────────
 const sections = {
   overview: {
     label: "Overview",
@@ -429,7 +429,6 @@ const sections = {
   },
 };
 
-// ─── Mobile Nav Dropdown ──────────────────────────────────────────────────────
 function MobileNav({ active, setActive, isDarkMode, t }) {
   const [open, setOpen] = useState(false);
   const activeSection = sections[active];
@@ -472,7 +471,6 @@ function MobileNav({ active, setActive, isDarkMode, t }) {
         </div>
       </button>
 
-      {/* Dropdown panel */}
       {open && (
         <div style={{
           position: "absolute",
@@ -530,7 +528,6 @@ function MobileNav({ active, setActive, isDarkMode, t }) {
             </button>
           ))}
 
-          {/* Install snippet at bottom of dropdown */}
           <div style={{
             padding: "12px 16px",
             background: isDarkMode ? "#0f172a" : "#f8fafc",
@@ -548,11 +545,15 @@ function MobileNav({ active, setActive, isDarkMode, t }) {
   );
 }
 
-// ─── Main export ──────────────────────────────────────────────────────────────
 export default function Documentation() {
   const { isDarkMode } = useTheme();
   const [active, setActive] = useState("overview");
   const ActiveContent = sections[active].content;
+
+   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [active]);
+
 
   const t = {
     bg:          isDarkMode ? "#020817"   : "#f8fafc",
@@ -575,7 +576,6 @@ export default function Documentation() {
         transition: "background 0.25s, color 0.25s",
       }}>
 
-        {/* ── Top bar ── */}
         <div style={{
           position: "sticky", top: 0, zIndex: 50,
           background: t.topbar,
@@ -589,7 +589,6 @@ export default function Documentation() {
             display: "flex", alignItems: "center", justifyContent: "space-between",
             gap: 12,
           }}>
-            {/* Brand */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: 8, flexShrink: 0,
@@ -598,7 +597,6 @@ export default function Documentation() {
               }}>
                 <Book size={14} color="white" />
               </div>
-              {/* Hide "SDK Docs" text on very small screens */}
               <span style={{ fontWeight: 800, fontSize: 15, color: t.textPrimary, whiteSpace: "nowrap" }}>
                 AI Memory Engine
               </span>
@@ -606,7 +604,6 @@ export default function Documentation() {
               <Badge color="#6366f1">v1.0.1</Badge>
             </div>
 
-            {/* Links — hide labels on mobile */}
             <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
               <a
                 href="https://github.com/RohitBCA456/ai-memory-engine"
@@ -630,7 +627,6 @@ export default function Documentation() {
           </div>
         </div>
 
-        {/* ── Body ── */}
         <div style={{
           maxWidth: 1200, margin: "0 auto",
           padding: "40px 16px",
@@ -638,7 +634,6 @@ export default function Documentation() {
           gap: 40,
         }}>
 
-          {/* ── Desktop Sidebar (hidden on mobile via CSS class) ── */}
           <aside className="docs-sidebar" style={{ width: 220, flexShrink: 0 }}>
             <div style={{ position: "sticky", top: 80 }}>
               <div style={{
@@ -668,7 +663,6 @@ export default function Documentation() {
                 ))}
               </nav>
 
-              {/* Install card */}
               <div style={{ marginTop: 28, background: t.cardBg, borderRadius: 12, padding: 16, border: `1px solid ${t.border}` }}>
                 <div style={{ color: "#6366f1", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
                   <Terminal size={12} /> Install
@@ -678,7 +672,6 @@ export default function Documentation() {
                 </code>
               </div>
 
-              {/* Quick links card */}
               <div style={{ marginTop: 16, background: t.cardBg2, borderRadius: 12, padding: 16, border: `1px solid ${t.border}` }}>
                 <div style={{ color: "#34d399", fontSize: 11, fontWeight: 700, textTransform: "uppercase", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
                   <Zap size={12} /> Quick Links
@@ -697,9 +690,7 @@ export default function Documentation() {
             </div>
           </aside>
 
-          {/* ── Main content ── */}
           <main style={{ flex: 1, minWidth: 0 }}>
-            {/* Mobile nav dropdown — shown only on mobile via CSS class */}
             <div className="docs-mobile-nav">
               <MobileNav
                 active={active}
@@ -709,7 +700,6 @@ export default function Documentation() {
               />
             </div>
 
-            {/* Breadcrumb */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 32, fontSize: 12, color: t.textMuted }}>
               <span>Docs</span>
               <ChevronRight size={12} />
@@ -720,7 +710,6 @@ export default function Documentation() {
               <ActiveContent />
             </div>
 
-            {/* Footer */}
             <div style={{
               marginTop: 60, paddingTop: 24,
               borderTop: `1px solid ${t.border}`,
