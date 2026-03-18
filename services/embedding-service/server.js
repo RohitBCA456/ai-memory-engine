@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { consumeMemoryIngest } from "./src/consumers/embedding.consumer.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 
 dotenv.config();
 
@@ -19,6 +20,12 @@ app.use(
 );
 
 await consumeMemoryIngest();
+
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "embedding is up!");
+
+  res.json(response)
+})
 
 app.listen(process.env.PORT, () => {
   console.log(`Embedding Service is running on port : ${process.env.PORT}`);

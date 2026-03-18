@@ -4,6 +4,7 @@ import cors from "cors";
 import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
 import { connectToRedis } from "../../shared/connectors/redis.connector.js";
 import { retrievalRouter } from "./src/routers/memoryRetrieval.router.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -25,6 +26,12 @@ app.use("/", retrievalRouter);
 
 await connectToMongoDB();
 await connectToRedis();
+
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "memory retrieval is up!");
+
+  res.json(response);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(

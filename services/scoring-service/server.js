@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { consumeMemoryEmbedding } from "./src/consumers/memory.consumer.js";
 import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
 import { connectToRedis } from "../../shared/connectors/redis.connector.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 
 dotenv.config();
 
@@ -24,6 +25,12 @@ await connectToMongoDB();
 await connectToRedis();
 
 await consumeMemoryEmbedding();
+
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "scoring is up!");
+
+  res.json(response);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Scoring Service is running at port : ${process.env.PORT}`);

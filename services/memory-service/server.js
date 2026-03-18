@@ -3,6 +3,7 @@ import { memoryRouter } from "./src/routes/memory.routes.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import { consumeMemoryId } from "./src/consumers/memoryId.consumer.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -22,6 +23,12 @@ app.use(
 await consumeMemoryId();
 
 app.use("/", memoryRouter);
+
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "memory ingestion is up!");
+
+  res.json(response);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Memory Service is running on port: ${process.env.PORT}`);

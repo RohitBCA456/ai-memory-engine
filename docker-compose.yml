@@ -26,8 +26,8 @@ services:
   # 3. Python Classifier (Independent)
   classifier:
     build:
-      context: services/classifier
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/classifier/Dockerfile
     environment:
       - PORT=5001
     networks:

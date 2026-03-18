@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
 import { connectToRedis } from "../../shared/connectors/redis.connector.js";
 import { consumePersistMemory } from "./src/consumers/persist.consumer.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 // import { clearQueue } from "../event-bus/src/rabbitmq.js";
 
 dotenv.config();
@@ -26,6 +27,12 @@ await connectToRedis();
 // await clearQueue();
 
 await consumePersistMemory();
+
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "storage is up!");
+
+  res.json(response);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Storage Service is running on port ${process.env.PORT}`);

@@ -1,7 +1,8 @@
 import express from "express";
 import proxy from "express-http-proxy";
 import cors from "cors";
-import { config } from "./config.js"; 
+import { config } from "./config.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 
 const app = express();
 
@@ -28,7 +29,10 @@ const commonProxyOptions = {
 };
 
 app.use("/memory-service", proxy(config.routes.memory, commonProxyOptions));
-app.use("/retrieval-service", proxy(config.routes.retrieval, commonProxyOptions));
+app.use(
+  "/retrieval-service",
+  proxy(config.routes.retrieval, commonProxyOptions),
+);
 app.use("/deletion-service", proxy(config.routes.deletion, commonProxyOptions));
 app.use("/rag-service", proxy(config.routes.RAG, commonProxyOptions));
 
@@ -45,6 +49,14 @@ app.use(
   }),
 );
 
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "api-gateway is up!");
+
+  res.json(response);
+});
+
 app.listen(config.port, () => {
-  console.log(`Gateway running in ${config.isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} mode on port ${config.port}`);
+  console.log(
+    `Gateway running in ${config.isProduction ? "PRODUCTION" : "DEVELOPMENT"} mode on port ${config.port}`,
+  );
 });

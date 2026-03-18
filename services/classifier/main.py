@@ -8,6 +8,10 @@ model = joblib.load('memory_classifier.joblib')
 class MemoryInput(BaseModel):
     text: str
 
+@app.get("/")  
+async def health():
+    return {"status": "alive"}
+
 @app.post("/predict")
 async def predict(data: MemoryInput):
     prediction = model.predict([data.text])[0]

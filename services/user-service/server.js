@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { userRouter } from "./src/routers/user.router.js";
 import { connectToRedis } from "../../shared/connectors/redis.connector.js";
-import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js"
+import { connectToMongoDB } from "../../shared/connectors/mongodb.connector.js";
+import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -27,6 +28,12 @@ app.use("/", userRouter);
 
 await connectToMongoDB();
 await connectToRedis();
+
+app.get("/", (req, res) => {
+  const response = new ApiResponse(200, "user is up!");
+
+  res.json(response);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`User Service is running on port: ${process.env.PORT}`);
