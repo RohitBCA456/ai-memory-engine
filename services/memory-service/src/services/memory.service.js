@@ -4,13 +4,14 @@ import { EVENTS } from "../../../event-bus/src/event.js";
 import { publishMemoryIngested } from "../adapters/event.publisher.js";
 import { getType } from "../adapters/llm.adapter.js";
 
-export const ingestMemory = asyncHandler(async (userId, content, appId) => {
+export const ingestMemory = async (userId, content, appId, metadata) => {
   const correlationId = MessageBridge.createCorrelationId();
   let result = await getType(content);
 
   const memory = {
     userId,
     content,
+    metadata,
     appId,
     correlationId,
     type: result.type,
@@ -27,4 +28,4 @@ export const ingestMemory = asyncHandler(async (userId, content, appId) => {
     memoryId: responseData.memoryId,
     type: result.type,
   };
-});
+};

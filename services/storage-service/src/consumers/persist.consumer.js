@@ -9,6 +9,7 @@ import { publishMemoryId } from "../adapters/publisher.adapter.js";
 export const consumePersistMemory = asyncHandler(async () => {
   let memoryId = null;
   await consumeEvent(EVENTS.MEMORY_SCORED, async (data) => {
+    console.log("Data received at storage service:", data);
 
     if (data.type === "long-term") {
       if (data.score < 0.8) {
@@ -34,7 +35,7 @@ export const consumePersistMemory = asyncHandler(async () => {
         const key = await storeToRedis(data);
         memoryId = key;
       } else {
-        memoryId = data?.memoryId
+        memoryId = data?.memoryId;
       }
     }
 

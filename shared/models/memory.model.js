@@ -5,6 +5,11 @@ const memorySchema = new mongoose.Schema({
 
   content: { type: String, required: true },
 
+  metadata: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {},
+  },
+
   type: { type: String, required: true },
 
   embedding: { type: [Number], required: true },

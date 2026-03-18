@@ -8,6 +8,7 @@ export const storeToRedis = asyncHandler(async (data) => {
 
   await redisClient.hSet(key, {
     content: data.content,
+    metadata: JSON.stringify(data.metadata || {}),
     type: data.type,
     appId: data.appId,
     embedding: vectorBuffer,

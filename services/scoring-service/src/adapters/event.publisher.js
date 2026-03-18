@@ -6,6 +6,7 @@ export const publishScoreGenerated = asyncHandler(async (event, memory) => {
   await publishEvent(event, {
     userId: memory.userId,
     content: memory.content,
+    metadata: memory.metadata,
     appId: memory.appId,
     correlationId: memory.correlationId,
     type: memory.type,
