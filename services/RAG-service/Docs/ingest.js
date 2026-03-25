@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { InferenceClient } from "@huggingface/inference";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -9,21 +10,20 @@ const __dirname = path.dirname(__filename);
 
 const hf = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
 
-// ── Embed via HF ──────────────────────────────────────────────────────────────
-async function getEmbedding(text, label) {
+async function getEmbedding(text) {
     const maxRetries = 3;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             const output = await hf.featureExtraction({
-                model: "BAAI/bge-small-en-v1.5", 
+                model: "BAAI/bge-small-en-v1.5",
                 inputs: text,
             });
             const vector = Array.isArray(output[0]) ? output[0] : output;
-            if (!vector || typeof vector[0] !== "number") throw new Error("Invalid format");
+            if (!vector || typeof vector[0] !== "number") throw new Error("Invalid embedding format");
             return vector;
         } catch (err) {
             if (err.message?.toLowerCase().includes("loading") && attempt < maxRetries) {
-                console.log(`\n ⚠️ Model loading... waiting 20s (attempt ${attempt})`);
+                console.log(`Model loading... retrying in 20s (attempt ${attempt}/${maxRetries})`);
                 await new Promise(r => setTimeout(r, 20000));
                 continue;
             }
@@ -32,23 +32,31 @@ async function getEmbedding(text, label) {
     }
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
 async function runIngestion() {
-    console.log("\n🚀 Starting Native REST Ingestion...\n");
+    console.log("\nStarting Ingestion...\n");
 
+    // Split docs using RecursiveCharacterTextSplitter
     const rawText = fs.readFileSync(path.join(__dirname, "Docs.md"), "utf8");
-    const rawChunks = rawText.split(/\n\n+/).filter(c => c.trim().length > 0);
+
+    const splitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 500,       // max characters per chunk
+        chunkOverlap: 50,     // overlap between chunks to preserve context
+    });
+
+    const chunks = await splitter.splitText(rawText);
+    console.log(`Split into ${chunks.length} chunks\n`);
+
+    // Embed each chunk
     const allVectors = [];
 
-    // 1. Generate Vectors
-    for (let i = 0; i < rawChunks.length; i++) {
-        process.stdout.write(`🧠 Embedding chunk ${i + 1}/${rawChunks.length}...`);
+    for (let i = 0; i < chunks.length; i++) {
+        process.stdout.write(`Embedding chunk ${i + 1}/${chunks.length}...`);
         try {
-            const values = await getEmbedding(rawChunks[i], `chunk ${i+1}`);
+            const values = await getEmbedding(chunks[i]);
             allVectors.push({
                 id: `doc-${Date.now()}-${i}`,
-                values: Array.from(values), // Ensure plain array
-                metadata: { text: rawChunks[i], source: "Docs.md" }
+                values: Array.from(values),
+                metadata: { text: chunks[i], source: "Docs.md" },
             });
             process.stdout.write(" ✓\n");
         } catch (err) {
@@ -57,41 +65,36 @@ async function runIngestion() {
         await new Promise(r => setTimeout(r, 800));
     }
 
-    if (allVectors.length === 0) return console.error("❌ No vectors created.");
+    if (allVectors.length === 0) return console.error("\nNo vectors created. Aborting.");
 
-    // 2. REST API Upsert (Bypasses SDK Validator)
-    // Your Host URL looks like: https://your-index-name-xxxx.svc.us-east1-gcp.pinecone.io
-    const PINE_HOST = process.env.PINECONE_HOST; 
+    // Upsert to Pinecone in batches via REST
     const BATCH_SIZE = 50;
-
-    console.log(`\n📡 Sending ${allVectors.length} vectors to Pinecone via REST...`);
+    console.log(`\nUpserting ${allVectors.length} vectors to Pinecone...\n`);
 
     for (let i = 0; i < allVectors.length; i += BATCH_SIZE) {
         const batch = allVectors.slice(i, i + BATCH_SIZE);
-        
-        const response = await fetch(`${PINE_HOST}/vectors/upsert`, {
-            method: 'POST',
+        const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+
+        const response = await fetch(`${process.env.PINECONE_HOST}/vectors/upsert`, {
+            method: "POST",
             headers: {
-                'Api-Key': process.env.PINECONE_API_KEY,
-                'Content-Type': 'application/json'
+                "Api-Key": process.env.PINECONE_API_KEY,
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ 
-                vectors: batch,
-                namespace: "" // Use your namespace if needed
-            })
+            body: JSON.stringify({ vectors: batch, namespace: "" }),
         });
 
         if (response.ok) {
-            const resData = await response.json();
-            console.log(` ✅ Batch ${Math.floor(i/BATCH_SIZE)+1} Success: ${resData.upsertedCount} vectors.`);
+            const { upsertedCount } = await response.json();
+            console.log(`Batch ${batchNum}: ${upsertedCount} vectors upserted`);
         } else {
-            const errorData = await response.json();
-            console.error(` ❌ Batch Failed:`, JSON.stringify(errorData));
+            const error = await response.json();
+            console.error(`Batch ${batchNum} failed:`, JSON.stringify(error));
             process.exit(1);
         }
     }
 
-    console.log("\n✨ Ingestion Complete!");
+    console.log("\nIngestion complete!\n");
 }
 
 runIngestion().catch(console.error);

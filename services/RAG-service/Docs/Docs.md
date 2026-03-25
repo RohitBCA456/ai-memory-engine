@@ -15,7 +15,7 @@ The live backend gateway is hosted at `https://ai-memory-engine-6uby.onrender.co
 Most AI models — including large language models — are stateless. Each conversation starts fresh with no memory of previous interactions. The AI Memory Engine solves this by giving your AI application a persistent memory layer:
 
 - Store what a user says, prefers, or does during a session.
-- Retrieve that context in future sessions, even days or weeks later.
+- Retrieve semantically relevant memories by asking a natural language question scoped to a specific user.
 - Delete memories when they are no longer relevant.
 - Let the engine automatically decide whether a memory should be stored in short-term (Redis) or long-term (MongoDB) storage based on its classification.
 
@@ -27,7 +27,7 @@ The AI Memory Engine uses two storage backends:
 
 **Short-Term Memory (Redis)** is used for transient, session-level context. These memories are fast to write and retrieve, but are not intended to persist indefinitely. Each Redis memory is keyed with the pattern `mem:<appId>:<timestamp>` and stored as a hash.
 
-**Long-Term Memory (MongoDB)** is used for durable, persistent context. When the classifier determines a memory is significant enough to persist — such as a user preference, biographical detail, or important fact — it is embedded using Ollama and stored in MongoDB with a vector embedding, a relevance score, a frequency counter, and a `lastSeenAt` timestamp for lifecycle management.
+**Long-Term Memory (MongoDB)** is used for durable, persistent context. When the classifier determines a memory is significant enough to persist — such as a user preference, biographical detail, or important fact — it is embedded using Ollama and stored in MongoDB with a vector embedding, a relevance score, a frequency counter, and a `lastSeenAt` timestamp for lifecycle management. Long-term memories support semantic similarity search via `client.retrieve()`.
 
 The routing decision between Redis and long-term MongoDB storage is made automatically by the Python Classifier service. You do not need to specify the storage tier when calling the SDK.
 
@@ -51,8 +51,6 @@ When a memory is stored in MongoDB (long-term), it has the following structure:
 | `createdAt` | Date | When the memory was first created |
 
 When a memory is stored in Redis (short-term), it is stored as a hash with at minimum the `content` and `createdAt` fields. The Redis key itself encodes the `appId` and creation timestamp.
-
-The `memoryId` returned by `client.ingest()` is either a MongoDB ObjectId (for long-term memories) or a Redis key string (for short-term memories). The retrieval service automatically detects which storage backend to query based on whether the ID is a valid MongoDB ObjectId.
 
 ---
 
@@ -143,7 +141,7 @@ async ingest(userId: string, content: string, metadata?: object): Promise<object
 
 `content` (string, required) — The text content of the memory. This should be a natural language string describing what you want to remember. It can be a user statement, an AI observation, a preference, a fact, a conversation summary, or any other text. The classifier reads this content to determine the memory type and storage tier.
 
-`metadata` (object, optional) — An optional plain object with additional key-value pairs. This is passed along with the memory payload for context. The current SDK version sends `userId`, `content`, and `metadata` to the memory service endpoint. Metadata is not stored by the current memory model schema but can be used to enrich future versions.
+`metadata` (object, optional) — An optional plain object with additional key-value pairs. This is passed along with the memory payload for context.
 
 **Returns:** A Promise resolving to an object with the following shape:
 
@@ -155,9 +153,7 @@ async ingest(userId: string, content: string, metadata?: object): Promise<object
 }
 ```
 
-**HTTP details:** Sends a POST request to `/memory-service/memory` with body `{ userId, content, metadata }`. The gateway proxies this to the Memory Service, which emits a `MEMORY_INGESTED` event on the internal event bus. The embedding, storage, and scoring pipeline runs asynchronously, but the endpoint awaits the final `memoryId` via a correlation-based message bridge before responding. The response status is `202 Accepted`.
-
-**Required fields on the server:** `userId`, `content`, and `appId` (derived from your API key). If any are missing, the server returns a 400 error.
+**HTTP details:** Sends a POST request to `/memory-service/memory` with body `{ userId, content, metadata }`. The response status is `202 Accepted`.
 
 **Example:**
 ```js
@@ -175,40 +171,55 @@ console.log(result.type);      // "long-term"
 
 ---
 
-### client.retrieve(memoryId)
+### client.retrieve(userId, query)
 
-Retrieves a stored memory by its ID.
+Queries a user's stored memories using natural language. The retrieval service converts the query into a vector embedding, performs a cosine similarity search against all memories belonging to the given `userId` in MongoDB, and returns a synthesized natural language answer along with the matching memory records.
 
 **Signature:**
 ```js
-async retrieve(memoryId: string): Promise<object>
+async retrieve(userId: string, query: string): Promise<object>
 ```
 
 **Parameters:**
 
-`memoryId` (string, required) — The ID of the memory to retrieve. This is the `memoryId` value returned by `client.ingest()`. The server automatically detects which storage backend to query: if the ID is a valid MongoDB ObjectId, it queries MongoDB; otherwise it queries Redis. You do not need to know or specify the storage tier.
+`userId` (string, required) — The unique identifier of the user whose memories to search. Must match the `userId` used during `client.ingest()`. Retrieval is strictly scoped to this user — queries never return memories belonging to other users or apps.
+
+`query` (string, required) — A natural language question or search phrase. The retrieval service embeds this string using Ollama and finds the most semantically similar memories for the given user. The query does not need to match the stored content word-for-word — it finds relevant memories even when phrasing differs.
 
 **Returns:** A Promise resolving to an object with the following shape:
 
 ```js
 {
-  message: "content found",
-  content: { /* the full memory document from Redis or MongoDB */ }
+  message: "Memory retrieved successfully",
+  answer: "The user prefers Python over JavaScript for backend work.",
+  matches: [
+    {
+      memoryId: "69ad7bb7af2212d9b502dce9",
+      content: "The user prefers Python over JavaScript for backend work.",
+      score: 0.94,
+      type: "long-term",
+      createdAt: "2026-03-12T10:23:00.000Z"
+    }
+  ]
 }
 ```
 
-For MongoDB memories, `content` is the full Mongoose document including `userId`, `content`, `type`, `score`, `embedding`, `appId`, `frequency`, `lastSeenAt`, and `createdAt`.
+`answer` is a synthesized natural language response generated from the top matching memories. `matches` is the array of raw memory records ranked by similarity score.
 
-For Redis memories, `content` is the raw hash data stored at that key.
-
-**HTTP details:** Sends a GET request to `/retrieval-service/retrieve-memory/:memoryId`. The gateway proxies this to the Retrieval Service, which uses `mongoose.Types.ObjectId.isValid(memoryId)` to determine the storage backend.
+**HTTP details:** Sends a POST request to `/retrieval-service/retrieve-memory` with body `{ userId, query }`.
 
 **Example:**
 ```js
-const result = await client.retrieve('69ad7bb7af2212d9b502dce9');
-console.log(result.content.content);   // "The user prefers Python over JavaScript..."
-console.log(result.content.type);      // "long-term"
-console.log(result.content.score);     // 0.87
+const result = await client.retrieve(
+  'user_abc123',
+  'What programming language does this user prefer?'
+);
+
+console.log(result.answer);
+// "The user prefers Python over JavaScript for backend work."
+
+console.log(result.matches[0].score);   // 0.94
+console.log(result.matches[0].content); // "The user prefers Python..."
 ```
 
 **Error:** Throws `"Retrieval Failed: <server message or network error>"` on failure.
@@ -226,7 +237,7 @@ async delete(memoryId: string): Promise<object>
 
 **Parameters:**
 
-`memoryId` (string, required) — The ID of the memory to delete. The server uses the same detection logic as retrieval: MongoDB ObjectIds are deleted from MongoDB, other strings are deleted from Redis.
+`memoryId` (string, required) — The ID of the memory to delete. The server uses the same detection logic as the storage tier routing: MongoDB ObjectIds are deleted from MongoDB, other strings are deleted from Redis.
 
 **Returns:** A Promise resolving to a confirmation object:
 
@@ -258,7 +269,7 @@ All SDK methods route through the API Gateway at `https://ai-memory-engine-6uby.
 | SDK Method | HTTP Method | Gateway Route | Internal Service |
 |---|---|---|---|
 | `client.ingest()` | POST | `/memory-service/memory` | Memory Service |
-| `client.retrieve()` | GET | `/retrieval-service/retrieve-memory/:id` | Retrieval Service |
+| `client.retrieve()` | POST | `/retrieval-service/retrieve-memory` | Retrieval Service |
 | `client.delete()` | DELETE | `/deletion-service/delete-memory/:id` | Deletion Service |
 
 The gateway also exposes user-service routes (used by the dashboard, not the SDK):
@@ -299,16 +310,21 @@ When you call `client.ingest()`, the following happens inside the platform:
 
 ---
 
-## Memory Retrieval Logic
+## Memory Retrieval Pipeline (Internal)
 
-When you call `client.retrieve(memoryId)`, the Retrieval Service applies the following logic:
+When you call `client.retrieve(userId, query)`, the following happens inside the platform:
 
-- It validates that `memoryId` is present in the request.
-- It calls `mongoose.Types.ObjectId.isValid(memoryId)`.
-- If the ID is a valid MongoDB ObjectId, it queries the `Memory` collection and returns the full document.
-- If the ID is not a valid ObjectId (indicating a Redis key), it queries Redis using the key and returns the raw hash data.
+1. **API Gateway** validates the `x-api-key` header and routes the request to the Retrieval Service.
 
-This means you do not need to track which storage tier a memory is in. The `memoryId` from `ingest()` is sufficient to retrieve from either backend.
+2. **Retrieval Service** receives the `userId` and `query` string from the request body. Both fields are required.
+
+3. **Embedding Service** converts the `query` string into a vector embedding using Ollama — the same model used during ingestion.
+
+4. **Similarity Search** performs a cosine similarity search against all stored memory embeddings scoped to the given `userId` in MongoDB. Memories belonging to other users or apps are excluded.
+
+5. **Answer Synthesis** uses the top-ranked matching memories to generate a direct natural language answer to the query.
+
+6. **Response** returns the synthesized `answer` string and the `matches` array with each memory's content, similarity score, type, and timestamp.
 
 ---
 
@@ -323,7 +339,8 @@ All three methods — `ingest`, `retrieve`, and `delete` — throw `Error` insta
 Examples:
 - `"Ingestion Failed: Unauthorized - Invalid API Key"`
 - `"Ingestion Failed: Fields are missing"`
-- `"Retrieval Failed: Memory not found"`
+- `"Retrieval Failed: userId and query are required"`
+- `"Retrieval Failed: No memories found for this user"`
 - `"Deletion Failed: Memory not found in any storage engine"`
 - `"Ingestion Failed: Service is waking up, please try again in a few seconds."` (cold-start timeout)
 
@@ -331,7 +348,8 @@ Always wrap SDK calls in `try/catch`:
 
 ```js
 try {
-  const result = await client.ingest('user_123', 'User prefers dark mode.');
+  const result = await client.retrieve('user_123', 'What does this user prefer?');
+  console.log(result.answer);
 } catch (error) {
   if (error.message.includes('waking up')) {
     // Retry after a short delay
@@ -355,21 +373,20 @@ const client = new AIMemoryClient(process.env.MEMORY_API_KEY);
 
 // Store a memory
 const result = await client.ingest('user_001', 'User works as a frontend developer.');
-const memoryId = result.memoryId;
 
-// Retrieve it
-const memory = await client.retrieve(memoryId);
-console.log(memory.content.content); // "User works as a frontend developer."
+// Retrieve via natural language query
+const memory = await client.retrieve('user_001', "What is this user's job?");
+console.log(memory.answer); // "User works as a frontend developer."
 
-// Delete it
-await client.delete(memoryId);
+// Delete by memory ID
+await client.delete(result.memoryId);
 ```
 
 ---
 
 ### Integrating With an AI Chatbot
 
-This pattern stores every user message and AI response as a memory, building up a persistent history that can be injected into future prompts.
+This pattern retrieves relevant past context before each response, then stores the new exchange — giving the AI continuity across sessions.
 
 ```js
 import AIMemoryClient from 'ai-memory-engine-sdk';
@@ -379,6 +396,9 @@ const memory = new AIMemoryClient(process.env.MEMORY_API_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function chat(userId, userMessage) {
+  // Retrieve relevant past context via similarity search
+  const context = await memory.retrieve(userId, userMessage);
+
   // Store the user's message
   await memory.ingest(userId, userMessage, {
     type: 'user-message',
@@ -387,7 +407,15 @@ async function chat(userId, userMessage) {
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
-    messages: [{ role: 'user', content: userMessage }]
+    messages: [
+      {
+        role: 'system',
+        content: context.answer
+          ? `Relevant context about this user: ${context.answer}`
+          : 'No prior context available.'
+      },
+      { role: 'user', content: userMessage }
+    ]
   });
 
   const reply = completion.choices[0].message.content;
@@ -429,6 +457,31 @@ const results = await Promise.all(
 
 console.log(`Stored ${results.length} memories.`);
 results.forEach(r => console.log(r.memoryId, r.type));
+```
+
+---
+
+### Querying Stored Memories
+
+Use natural language questions to retrieve relevant context — the similarity search handles matching automatically.
+
+```js
+// After ingesting several memories for 'user_456'...
+
+const result = await client.retrieve(
+  'user_456',
+  'Where is this user located and what language do they prefer?'
+);
+
+console.log(result.answer);
+// "The user is based in Mumbai, India and prefers TypeScript over JavaScript."
+
+// Inspect the raw matched memories and their scores
+result.matches.forEach(m => {
+  console.log(`[${m.score.toFixed(2)}] ${m.content}`);
+});
+// [0.96] User is based in Mumbai, India.
+// [0.91] User prefers TypeScript over JavaScript.
 ```
 
 ---
@@ -514,23 +567,19 @@ declare module 'ai-memory-engine-sdk' {
     type: string;
   }
 
-  export interface MemoryContent {
-    _id?: string;
-    userId: string;
+  export interface MemoryMatch {
+    memoryId: string;
     content: string;
+    score: number;
     type?: string;
-    score?: number;
-    embedding?: number[];
-    appId?: string;
-    frequency?: number;
-    lastSeenAt?: string;
     createdAt?: string;
     [key: string]: unknown;
   }
 
   export interface RetrieveResult {
     message: string;
-    content: MemoryContent;
+    answer: string;
+    matches: MemoryMatch[];
   }
 
   export interface DeleteResult {
@@ -541,7 +590,7 @@ declare module 'ai-memory-engine-sdk' {
   export default class AIMemoryClient {
     constructor(apiKey: string);
     ingest(userId: string, content: string, metadata?: MemoryMetadata): Promise<IngestResult>;
-    retrieve(memoryId: string): Promise<RetrieveResult>;
+    retrieve(userId: string, query: string): Promise<RetrieveResult>;
     delete(memoryId: string): Promise<DeleteResult>;
   }
 }
@@ -591,11 +640,14 @@ A `userId` is any string that uniquely identifies a user in your system. It can 
 **What is the difference between short-term and long-term memory?**
 Short-term memories are stored in Redis and are fast but ephemeral — they can expire or be evicted. Long-term memories are stored in MongoDB with a vector embedding, relevance score, and timestamps. The classification is automatic based on the memory content. You do not choose the tier.
 
-**How does semantic retrieval work?**
-When a memory is classified as long-term, the Embedding Service generates a vector embedding of the content using Ollama. This embedding can be used for vector similarity search, allowing you to find memories that are semantically related to a query even if they don't share exact keywords. The current SDK exposes retrieval by ID only; semantic search by query text is available via the dashboard's Memory Explorer.
+**How does similarity search work in retrieve()?**
+The `query` string is converted into a vector embedding by the Ollama Embedding Service — the same model used at ingestion time. This vector is compared against all stored memory embeddings for the given `userId` using cosine similarity. The most semantically relevant memories are ranked and used to synthesize a direct answer. Results are scoped strictly to the provided `userId` and app.
+
+**Does retrieve() search across all users or just one?**
+Only within the specified `userId`. Memories are strictly scoped per user and per app, so queries never surface results from other users or other applications.
 
 **What memory types are there?**
-Memory types are assigned automatically by the Python Classifier service based on the content. Possible types include categories like preference, fact, instruction, and episodic. The `type` is returned in the `ingest()` response as a string.
+Memory types are assigned automatically by the Python Classifier service based on the content. Possible types include categories like `preference`, `fact`, `instruction`, and `episodic`. The `type` is returned in the `ingest()` response and included in `retrieve()` match results.
 
 **What happens to memories over time?**
 Long-term memories stored in MongoDB include a `score`, `frequency`, and `lastSeenAt` field managed by the Scoring Service. Short-term Redis memories expire based on their TTL. The Deletion Service allows explicit deletion by ID via `client.delete()`.
@@ -616,7 +668,7 @@ The SDK source is available on GitHub at `https://github.com/RohitBCA456/ai-memo
 
 ## Changelog
 
-**v1.0.1** — Current release. Stable `ingest`, `retrieve`, and `delete` methods. Hardcoded gateway URL pointing to the live deployment. ESM module format. Single `axios` dependency.
+**v1.0.1** — Current release. Stable `ingest`, `retrieve`, and `delete` methods. `retrieve()` accepts `userId` and `query` parameters and performs semantic similarity search, returning a synthesized answer and ranked match list. ESM module format. Single `axios` dependency.
 
 **v1.0.0** — Initial release.
 
