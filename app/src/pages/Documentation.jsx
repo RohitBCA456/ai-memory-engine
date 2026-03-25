@@ -330,6 +330,7 @@ const sections = {
               ["_id", "ObjectId", "Unique MongoDB identifier"],
               ["userId", "String", "The user this memory belongs to"],
               ["content", "String", "The raw text content of the memory"],
+              ["metadata", "Mixed", "Flexible object containing contextual data"],
               ["type", "String", "Classified automatically by the Python service"],
               ["embedding", "Number[]", "Ollama-generated vector embedding for semantic search"],
               ["score", "Number", "Relevance score assigned by the scoring service"],
