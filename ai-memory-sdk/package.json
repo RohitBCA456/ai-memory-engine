@@ -1,6 +1,6 @@
 {
   "name": "ai-memory-engine-sdk",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "A high-performance SDK for multi-tenant AI memory management.",
   "main": "index.js",
   "type": "module",

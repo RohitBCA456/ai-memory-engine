@@ -4,7 +4,7 @@
 
 Give your AI application persistent, semantically-searchable memory in minutes. The `ai-memory-engine-sdk` connects directly to the [AI Memory Engine](https://github.com/RohitBCA456/ai-memory-engine) backend, giving you a simple three-method API to **ingest**, **retrieve**, and **delete** memories — no infrastructure setup required.
 
-[![npm version](https://img.shields.io/badge/npm-v1.0.1-blue)](https://www.npmjs.com/package/ai-memory-engine-sdk)
+[![npm version](https://img.shields.io/badge/npm-v1.0.5-blue)](https://www.npmjs.com/package/ai-memory-engine-sdk)
 [![license](https://img.shields.io/badge/license-ISC-green)](#license)
 [![module type](https://img.shields.io/badge/module-ESM-yellow)](#installation)
 
@@ -18,7 +18,7 @@ Give your AI application persistent, semantically-searchable memory in minutes. 
 - [API Reference](#api-reference)
   - [new AIMemoryClient(apiKey)](#new-aimemoryclientapikey)
   - [client.ingest(userId, content, metadata?)](#clientingestuserid-content-metadata)
-  - [client.retrieve(memoryId)](#clientretrievememoryid)
+  - [client.retrieve(userId, query)](#clientretrieveuserid-query)
   - [client.delete(memoryId)](#clientdeletememoryid)
 - [Usage Examples](#usage-examples)
 - [Error Handling](#error-handling)
@@ -70,19 +70,22 @@ import AIMemoryClient from 'ai-memory-engine-sdk';
 const client = new AIMemoryClient('your_api_key_here');
 
 // 2. Store a memory
-const result = await client.ingest(
+await client.ingest(
   'user_123',
   'The user prefers concise answers and dark mode.'
 );
 
-console.log(result.memoryId); // e.g. "69ad7bb7af2212d9b502dce9"
+// 3. Retrieve relevant memories via natural language query
+const result = await client.retrieve(
+  'user_123',
+  'What are this user\'s preferences?'
+);
 
-// 3. Retrieve it later
-const memory = await client.retrieve(result.memoryId);
-console.log(memory);
+console.log(result.answer);
+// "The user prefers concise answers and dark mode."
 
-// 4. Delete when no longer needed
-await client.delete(result.memoryId);
+// 4. Delete a memory when no longer needed
+await client.delete('69ad7bb7af2212d9b502dce9');
 ```
 
 ---
@@ -138,43 +141,62 @@ const result = await client.ingest(
 
 console.log(result);
 // {
-//   success: true,
-//   memoryId: '69ad7bb7af2212d9b502dce9',
-//   tier: 'long-term',
-//   ...
+//   message: "Memory processed successfully",
+//   memoryId: "69ad7bb7af2212d9b502dce9",
+//   type: "long-term"
 // }
 ```
 
 ---
 
-### `client.retrieve(memoryId)`
+### `client.retrieve(userId, query)`
 
-Retrieves a stored memory by its ID.
+Queries a user's stored memories using natural language. The retrieval service converts the `query` into a vector embedding, performs a cosine similarity search against all memories belonging to the given `userId` in MongoDB, and returns a synthesized natural language answer alongside the matching memory records ranked by relevance.
 
 ```js
-const memory = await client.retrieve(memoryId);
+const result = await client.retrieve(userId, query);
 ```
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `memoryId` | `string` | ✅ Yes | The ID of the memory to retrieve |
+| `userId` | `string` | ✅ Yes | The unique identifier of the user whose memories to search — must match the `userId` used during `ingest()` |
+| `query` | `string` | ✅ Yes | A natural language question or search phrase. Does not need to match stored content word-for-word — semantic similarity is used |
 
-**Returns:** `Promise<object>` — the full memory object including content, metadata, and scores.
+**Returns:** `Promise<object>` — a synthesized answer and an array of matching memory records.
+
+```js
+{
+  message: "Memory retrieved successfully",
+  answer: "The user prefers TypeScript and asked about React Server Components.",
+  matches: [
+    {
+      memoryId: "69ad7bb7af2212d9b502dce9",
+      content: "User asked about React Server Components and prefers TypeScript.",
+      score: 0.94,
+      type: "long-term",
+      createdAt: "2026-03-12T10:23:00.000Z"
+    }
+  ]
+}
+```
+
+> **Note:** Retrieval is strictly scoped to the provided `userId` and your app's namespace. Queries never surface memories belonging to other users or other applications.
 
 **Example:**
 
 ```js
-const memory = await client.retrieve('69ad7bb7af2212d9b502dce9');
+const result = await client.retrieve(
+  'user_456',
+  'What topics has this user asked about?'
+);
 
-console.log(memory);
-// {
-//   memoryId: '69ad7bb7af2212d9b502dce9',
-//   userId: 'user_456',
-//   content: 'User asked about React Server Components...',
-//   metadata: { source: 'chat', sessionId: 'sess_abc123' },
-//   score: 0.92,
-//   createdAt: '2025-01-01T12:00:00.000Z'
-// }
+console.log(result.answer);
+// "The user asked about React Server Components and prefers TypeScript."
+
+result.matches.forEach(m => {
+  console.log(`[${m.score.toFixed(2)}] ${m.content}`);
+});
+// [0.94] User asked about React Server Components and prefers TypeScript.
 ```
 
 ---
@@ -189,7 +211,7 @@ const response = await client.delete(memoryId);
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `memoryId` | `string` | ✅ Yes | The ID of the memory to delete |
+| `memoryId` | `string` | ✅ Yes | The ID of the memory to delete, returned by `ingest()` |
 
 **Returns:** `Promise<object>` — a confirmation object.
 
@@ -199,7 +221,7 @@ const response = await client.delete(memoryId);
 const response = await client.delete('69ad7bb7af2212d9b502dce9');
 
 console.log(response);
-// { success: true, message: 'Memory deleted.' }
+// { success: true, message: "Memory successfully removed" }
 ```
 
 ---
@@ -208,7 +230,7 @@ console.log(response);
 
 ### With an AI Chatbot (e.g. OpenAI)
 
-Store what a user tells the AI, then recall it in future sessions:
+Retrieve relevant past context before each response, then store the new exchange for future sessions:
 
 ```js
 import AIMemoryClient from 'ai-memory-engine-sdk';
@@ -218,17 +240,28 @@ const memory = new AIMemoryClient(process.env.MEMORY_API_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function chat(userId, userMessage) {
-  // Persist the user's message as a memory
+  // Retrieve semantically relevant past context
+  const context = await memory.retrieve(userId, userMessage);
+
+  // Persist the user's message
   await memory.ingest(userId, userMessage, { type: 'user-input' });
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
-    messages: [{ role: 'user', content: userMessage }]
+    messages: [
+      {
+        role: 'system',
+        content: context.answer
+          ? `Relevant context about this user: ${context.answer}`
+          : 'No prior context available.'
+      },
+      { role: 'user', content: userMessage }
+    ]
   });
 
   const reply = response.choices[0].message.content;
 
-  // Persist the AI's response too
+  // Persist the AI's response
   await memory.ingest(userId, reply, { type: 'ai-response' });
 
   return reply;
@@ -257,6 +290,28 @@ const results = await Promise.all(
 );
 
 console.log(`Stored ${results.length} memories.`);
+```
+
+---
+
+### Querying Stored Memories
+
+Use natural language to ask questions about what a user has shared — the similarity search handles matching automatically:
+
+```js
+const result = await client.retrieve(
+  'user_789',
+  'Where is this user based and what languages do they speak?'
+);
+
+console.log(result.answer);
+// "The user is based in India and speaks English and Hindi."
+
+result.matches.forEach(m => {
+  console.log(`[${m.score.toFixed(2)}] ${m.content}`);
+});
+// [0.97] User is based in India.
+// [0.93] User speaks English and Hindi.
 ```
 
 ---
@@ -296,10 +351,12 @@ try {
 }
 
 try {
-  const memory = await client.retrieve('invalid_id');
+  const result = await client.retrieve('user_123', 'What does this user prefer?');
+  console.log(result.answer);
 } catch (error) {
   console.error('Retrieval failed:', error.message);
-  // e.g. "Retrieval Failed: Memory not found"
+  // e.g. "Retrieval Failed: userId and query are required"
+  // e.g. "Retrieval Failed: No memories found for this user"
 }
 ```
 
@@ -324,20 +381,24 @@ declare module 'ai-memory-engine-sdk' {
   }
 
   interface IngestResult {
-    success: boolean;
+    message: string;
     memoryId: string;
-    tier?: string;
+    type: string;
+  }
+
+  interface MemoryMatch {
+    memoryId: string;
+    content: string;
+    score: number;
+    type?: string;
+    createdAt?: string;
     [key: string]: unknown;
   }
 
   interface RetrieveResult {
-    memoryId: string;
-    userId: string;
-    content: string;
-    metadata?: MemoryMetadata;
-    score?: number;
-    createdAt?: string;
-    [key: string]: unknown;
+    message: string;
+    answer: string;
+    matches: MemoryMatch[];
   }
 
   interface DeleteResult {
@@ -348,7 +409,7 @@ declare module 'ai-memory-engine-sdk' {
   export default class AIMemoryClient {
     constructor(apiKey: string);
     ingest(userId: string, content: string, metadata?: MemoryMetadata): Promise<IngestResult>;
-    retrieve(memoryId: string): Promise<RetrieveResult>;
+    retrieve(userId: string, query: string): Promise<RetrieveResult>;
     delete(memoryId: string): Promise<DeleteResult>;
   }
 }

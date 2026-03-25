@@ -35,10 +35,14 @@ class AIMemoryClient {
     }
   }
 
-  async retrieve(memoryId) {
+  async retrieve(userId, content) {
     try {
-      const response = await this.client.get(
-        `/retrieval-service/retrieve-memory/${memoryId}`,
+      const response = await this.client.post(
+        `/retrieval-service/retrieve-memory`,
+        {
+          userId,
+          content,
+        },
       );
       return response.data;
     } catch (error) {
