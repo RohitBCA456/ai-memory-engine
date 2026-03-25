@@ -202,7 +202,7 @@ const sections = {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginTop: 20 }}>
             {[
               { icon: "💾", title: "Store", desc: "What a user says, prefers, or does during a session" },
-              { icon: "🔍", title: "Retrieve", desc: "Context in future sessions, even days or weeks later" },
+              { icon: "🔍", title: "Retrieve", desc: "Context in future sessions via natural language similarity search" },
               { icon: "🗑️", title: "Delete", desc: "Memories when they are no longer relevant" },
               { icon: "⚡", title: "Auto-route", desc: "Short-term Redis or long-term MongoDB automatically" },
             ].map(c => <FeatureCard key={c.title} {...c} />)}
@@ -210,7 +210,7 @@ const sections = {
         </Section>
         <Section title="How Memory Storage Works">
           <StorageCard label="Short-Term Memory" tag="Redis" color="#f87171" desc="Transient, session-level context. Fast to write and retrieve. Keyed with pattern mem:<appId>:<timestamp>." />
-          <StorageCard label="Long-Term Memory" tag="MongoDB" color="#34d399" desc="Durable, persistent context. Stored with vector embedding, relevance score, frequency counter, and lastSeenAt timestamp." />
+          <StorageCard label="Long-Term Memory" tag="MongoDB" color="#34d399" desc="Durable, persistent context. Stored with vector embedding, relevance score, frequency counter, and lastSeenAt timestamp. Supports semantic similarity search." />
           <P>The routing decision is made automatically by the Python Classifier. You do not need to specify the storage tier.</P>
         </Section>
       </>
@@ -285,15 +285,33 @@ const sections = {
           <H3>Example</H3>
           <CodeBlock code={`const result = await client.ingest(\n  'user_abc123',\n  'The user prefers Python over JavaScript for backend work.',\n  { source: 'onboarding', sessionId: 'sess_xyz' }\n);\n\nconsole.log(result.memoryId); // "69ad7bb7af2212d9b502dce9"\nconsole.log(result.type);     // "long-term"`} />
         </Section>
+
         <Section title="client.retrieve()">
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><Badge color="#60a5fa">GET</Badge></div>
-          <P>Retrieves a stored memory by its ID. Automatically detects Redis vs MongoDB backend.</P>
-          <CodeBlock code="async retrieve(memoryId: string): Promise<object>" language="ts" />
+          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+            <Badge color="#60a5fa">POST</Badge>
+            <Badge color="#6366f1">Semantic Similarity Search</Badge>
+          </div>
+          <P>Queries a user's stored memories using natural language. The retrieval service performs a vector similarity search against the user's memories in the database and returns a direct answer synthesized from the most relevant results.</P>
+          <CodeBlock code="async retrieve(userId: string, query: string): Promise<object>" language="ts" />
+          <H3>Parameters</H3>
+          <Table
+            headers={["Parameter", "Type", "Required", "Description"]}
+            rows={[
+              ["userId", "string", "Yes", "The user whose memories to search — must match the userId used during ingest()"],
+              ["query", "string", "Yes", "A natural language question or search phrase used to find semantically similar memories"],
+            ]}
+          />
           <H3>Returns</H3>
-          <CodeBlock code={`{\n  message: "content found",\n  content: {\n    userId: "user_abc123",\n    content: "The user prefers Python...",\n    type: "long-term",\n    score: 0.87,\n    frequency: 1,\n    createdAt: "2026-03-12T..."\n  }\n}`} />
+          <CodeBlock code={`{\n  message: "Memory retrieved successfully",\n  answer: "The user prefers Python over JavaScript for backend work.",\n  matches: [\n    {\n      memoryId: "69ad7bb7af2212d9b502dce9",\n      content: "The user prefers Python over JavaScript for backend work.",\n      score: 0.94,\n      type: "long-term",\n      createdAt: "2026-03-12T10:23:00.000Z"\n    }\n  ]\n}`} />
           <H3>Example</H3>
-          <CodeBlock code={`const result = await client.retrieve('69ad7bb7af2212d9b502dce9');\nconsole.log(result.content.content); // "The user prefers Python..."\nconsole.log(result.content.score);   // 0.87`} />
+          <CodeBlock code={`const result = await client.retrieve(\n  'user_abc123',\n  'What programming language does this user prefer?'\n);\n\nconsole.log(result.answer);\n// "The user prefers Python over JavaScript for backend work."\n\nconsole.log(result.matches[0].score); // 0.94`} />
+          <InfoCard
+            icon="🔍"
+            title="How Similarity Search Works"
+            desc="The query string is converted to a vector embedding by the Embedding Service (Ollama). This vector is then compared against stored memory embeddings using cosine similarity. The most semantically relevant memories are used to generate the answer — even if the wording differs from the original stored content."
+          />
         </Section>
+
         <Section title="client.delete()">
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}><Badge color="#f87171">DELETE</Badge></div>
           <P>Permanently deletes a memory by its ID from all storage backends.</P>
@@ -303,12 +321,13 @@ const sections = {
           <H3>Example</H3>
           <CodeBlock code={`const response = await client.delete('69ad7bb7af2212d9b502dce9');\nconsole.log(response.message); // "Memory successfully removed"`} />
         </Section>
+
         <Section title="API Gateway Routes">
           <Table
             headers={["SDK Method", "HTTP", "Route", "Service"]}
             rows={[
               ["client.ingest()", "POST", "/memory-service/memory", "Memory Service"],
-              ["client.retrieve()", "GET", "/retrieval-service/retrieve-memory/:id", "Retrieval Service"],
+              ["client.retrieve()", "POST", "/retrieval-service/retrieve-memory", "Retrieval Service"],
               ["client.delete()", "DELETE", "/deletion-service/delete-memory/:id", "Deletion Service"],
             ]}
           />
@@ -356,6 +375,19 @@ const sections = {
             <PipelineStep key={s.title} step={i + 1} total={arr.length} {...s} />
           ))}
         </Section>
+        <Section title="Memory Retrieval Pipeline">
+          <P>When you call <InlineCode>client.retrieve()</InlineCode>, the following happens internally:</P>
+          {[
+            { title: "API Gateway", color: "#60a5fa", desc: "Validates x-api-key header, routes request to the Retrieval Service." },
+            { title: "Retrieval Service", color: "#38bdf8", desc: "Receives userId and query string. Passes query to the Embedding Service." },
+            { title: "Embedding Service", color: "#0ea5e9", desc: "Converts the query string into a vector embedding using Ollama." },
+            { title: "Similarity Search", color: "#0284c7", desc: "Performs cosine similarity search against all stored embeddings for the given userId in MongoDB." },
+            { title: "Answer Synthesis", color: "#0369a1", desc: "Top matching memories are used to synthesize a direct natural language answer to the query." },
+            { title: "Response", color: "#34d399", desc: "Returns the synthesized answer along with the matching memory records and their similarity scores." },
+          ].map((s, i, arr) => (
+            <PipelineStep key={s.title} step={i + 1} total={arr.length} {...s} />
+          ))}
+        </Section>
       </>
     ),
   },
@@ -366,15 +398,19 @@ const sections = {
     content: () => (
       <>
         <Section title="Basic Usage">
-          <CodeBlock code={`import AIMemoryClient from 'ai-memory-engine-sdk';\n\nconst client = new AIMemoryClient(process.env.MEMORY_API_KEY);\n\nconst result = await client.ingest('user_001', 'User works as a frontend developer.');\nconst memoryId = result.memoryId;\n\nconst memory = await client.retrieve(memoryId);\nconsole.log(memory.content.content); // "User works as a frontend developer."\n\nawait client.delete(memoryId);`} />
+          <CodeBlock code={`import AIMemoryClient from 'ai-memory-engine-sdk';\n\nconst client = new AIMemoryClient(process.env.MEMORY_API_KEY);\n\n// Store a memory\nconst result = await client.ingest('user_001', 'User works as a frontend developer.');\nconsole.log(result.memoryId); // "69ad7bb7af2212d9b502dce9"\n\n// Retrieve via natural language query\nconst memory = await client.retrieve('user_001', 'What is this user\\'s job?');\nconsole.log(memory.answer); // "User works as a frontend developer."\n\n// Delete by memory ID\nawait client.delete(result.memoryId);`} />
         </Section>
         <Section title="Integrating With an AI Chatbot">
-          <P>Store every user message and AI response, building up persistent history to inject into future prompts.</P>
-          <CodeBlock code={`import AIMemoryClient from 'ai-memory-engine-sdk';\nimport OpenAI from 'openai';\n\nconst memory = new AIMemoryClient(process.env.MEMORY_API_KEY);\nconst openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nasync function chat(userId, userMessage) {\n  await memory.ingest(userId, userMessage, {\n    type: 'user-message',\n    timestamp: new Date().toISOString()\n  });\n\n  const completion = await openai.chat.completions.create({\n    model: 'gpt-4o',\n    messages: [{ role: 'user', content: userMessage }]\n  });\n\n  const reply = completion.choices[0].message.content;\n\n  await memory.ingest(userId, reply, {\n    type: 'ai-response',\n    timestamp: new Date().toISOString()\n  });\n\n  return reply;\n}`} />
+          <P>Store every user message and AI response, then use <InlineCode>retrieve()</InlineCode> to inject relevant past context into future prompts for continuity.</P>
+          <CodeBlock code={`import AIMemoryClient from 'ai-memory-engine-sdk';\nimport OpenAI from 'openai';\n\nconst memory = new AIMemoryClient(process.env.MEMORY_API_KEY);\nconst openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nasync function chat(userId, userMessage) {\n  // Retrieve relevant past context via similarity search\n  const context = await memory.retrieve(userId, userMessage);\n\n  // Store the new user message\n  await memory.ingest(userId, userMessage, {\n    type: 'user-message',\n    timestamp: new Date().toISOString()\n  });\n\n  const completion = await openai.chat.completions.create({\n    model: 'gpt-4o',\n    messages: [\n      {\n        role: 'system',\n        content: context.answer\n          ? \`Relevant context about this user: \${context.answer}\`\n          : 'No prior context available.'\n      },\n      { role: 'user', content: userMessage }\n    ]\n  });\n\n  const reply = completion.choices[0].message.content;\n\n  // Store the AI response\n  await memory.ingest(userId, reply, {\n    type: 'ai-response',\n    timestamp: new Date().toISOString()\n  });\n\n  return reply;\n}`} />
         </Section>
         <Section title="Batch Ingestion">
           <P>Store multiple memories at once using <InlineCode>Promise.all</InlineCode> — useful during onboarding.</P>
           <CodeBlock code={`const userFacts = [\n  'User is based in Mumbai, India.',\n  'User prefers TypeScript over JavaScript.',\n  'User works on a team of 5 engineers.',\n];\n\nconst results = await Promise.all(\n  userFacts.map(fact =>\n    client.ingest('user_456', fact, { source: 'onboarding' })\n  )\n);\n\nconsole.log(\`Stored \${results.length} memories.\`);`} />
+        </Section>
+        <Section title="Querying Stored Memories">
+          <P>Use natural language queries to ask questions about what a user has told the system — the retrieval service handles similarity matching automatically.</P>
+          <CodeBlock code={`// After ingesting several memories for 'user_456'...\n\nconst result = await client.retrieve(\n  'user_456',\n  'Where is this user located and what language do they prefer?'\n);\n\nconsole.log(result.answer);\n// "The user is based in Mumbai, India and prefers TypeScript over JavaScript."\n\n// Inspect the raw matched memories\nresult.matches.forEach(m => {\n  console.log(\`[\${m.score.toFixed(2)}] \${m.content}\`);\n});\n// [0.96] User is based in Mumbai, India.\n// [0.91] User prefers TypeScript over JavaScript.`} />
         </Section>
         <Section title="Handling Cold Starts">
           <P>The backend may take up to 2 minutes to wake up. Use this retry helper:</P>
@@ -382,7 +418,7 @@ const sections = {
         </Section>
         <Section title="TypeScript Declarations">
           <P>The SDK ships as plain JS. Create this declaration file for full type safety:</P>
-          <CodeBlock code={`declare module 'ai-memory-engine-sdk' {\n  export interface IngestResult {\n    message: string;\n    memoryId: string;\n    type: string;\n  }\n  export interface RetrieveResult {\n    message: string;\n    content: {\n      userId: string;\n      content: string;\n      type?: string;\n      score?: number;\n      [key: string]: unknown;\n    };\n  }\n  export default class AIMemoryClient {\n    constructor(apiKey: string);\n    ingest(userId: string, content: string, metadata?: object): Promise<IngestResult>;\n    retrieve(memoryId: string): Promise<RetrieveResult>;\n    delete(memoryId: string): Promise<{ success: boolean; message: string }>;\n  }\n}`} language="ts" />
+          <CodeBlock code={`declare module 'ai-memory-engine-sdk' {\n  export interface IngestResult {\n    message: string;\n    memoryId: string;\n    type: string;\n  }\n\n  export interface MemoryMatch {\n    memoryId: string;\n    content: string;\n    score: number;\n    type?: string;\n    createdAt?: string;\n    [key: string]: unknown;\n  }\n\n  export interface RetrieveResult {\n    message: string;\n    answer: string;\n    matches: MemoryMatch[];\n  }\n\n  export default class AIMemoryClient {\n    constructor(apiKey: string);\n    ingest(userId: string, content: string, metadata?: object): Promise<IngestResult>;\n    retrieve(userId: string, query: string): Promise<RetrieveResult>;\n    delete(memoryId: string): Promise<{ success: boolean; message: string }>;\n  }\n}`} language="ts" />
         </Section>
       </>
     ),
@@ -408,19 +444,21 @@ const sections = {
             rows={[
               ["Ingestion Failed: Unauthorized - Invalid API Key", "Wrong or missing API key"],
               ["Ingestion Failed: Fields are missing", "userId or content not provided"],
-              ["Retrieval Failed: Memory not found", "No memory with that ID"],
+              ["Retrieval Failed: userId and query are required", "One or both parameters missing from retrieve() call"],
+              ["Retrieval Failed: No memories found for this user", "No stored memories match the given userId"],
               ["Deletion Failed: Memory not found in any storage engine", "ID doesn't exist"],
               ["Ingestion Failed: Service is waking up...", "Cold-start timeout — retry after delay"],
             ]}
           />
-          <CodeBlock code={`try {\n  const result = await client.ingest('user_123', 'User prefers dark mode.');\n} catch (error) {\n  if (error.message.includes('waking up')) {\n    await new Promise(resolve => setTimeout(resolve, 5000));\n  } else {\n    console.error(error.message);\n  }\n}`} />
+          <CodeBlock code={`try {\n  const result = await client.retrieve('user_123', 'What does this user prefer?');\n  console.log(result.answer);\n} catch (error) {\n  if (error.message.includes('waking up')) {\n    await new Promise(resolve => setTimeout(resolve, 5000));\n  } else {\n    console.error(error.message);\n  }\n}`} />
         </Section>
         <Section title="Frequently Asked Questions">
           {[
             { q: "What is a userId and how should I set it?", a: "Any string that uniquely identifies a user — a database ID, Clerk user ID, email, or UUID. Keep it consistent across sessions. No registration step required." },
             { q: "What is the difference between short-term and long-term memory?", a: "Short-term lives in Redis — fast but ephemeral. Long-term lives in MongoDB with vector embeddings, scores, and timestamps. Classification is automatic." },
-            { q: "How does semantic retrieval work?", a: "Long-term memories get Ollama-generated vector embeddings for semantic similarity search. The SDK currently exposes retrieval by ID only; semantic search is in the dashboard." },
-            { q: "What memory types are there?", a: '"preference", "fact", "instruction", "episodic", and others. The type is returned in the ingest() response.' },
+            { q: "How does similarity search work in retrieve()?", a: "The query string is embedded by the Ollama Embedding Service into a vector. This vector is compared against all stored memory embeddings for the userId using cosine similarity. The closest matches are used to synthesize a direct answer." },
+            { q: "Does retrieve() search across all users or just one?", a: "Only within the specified userId. Memories are strictly scoped per user and per app, so queries never leak across accounts." },
+            { q: "What memory types are there?", a: '"preference", "fact", "instruction", "episodic", and others. The type is returned in the ingest() response and included in retrieve() match results.' },
             { q: "What is the request timeout?", a: "120 seconds (2 minutes). Intentional for cold-start accommodation. If you see timeouts, wait a moment and retry." },
             { q: "Can I use this with any AI model?", a: "Yes. The SDK is model-agnostic — GPT-4, Claude, Gemini, or any other LLM." },
           ].map((faq, i) => <FaqItem key={i} {...faq} />)}
