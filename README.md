@@ -70,7 +70,7 @@ The system is composed of **9 independent microservices** orchestrated via Docke
 3. **Embed** — The Embedding Service generates a semantic vector via Ollama.
 4. **Store** — The Storage Service writes to Redis (short-term) or MongoDB (long-term).
 5. **Score** — The Scoring Service applies relevance and TTL scoring.
-6. **Retrieve** — The Retrieval Service performs vector similarity search on demand.
+6. **Retrieve** — The Retrieval Service embeds the query text and performs vector similarity search scoped to a specific user.
 
 ---
 
@@ -119,7 +119,7 @@ ai-memory-engine/
 ├── services/
 │   ├── api-gateway/            # Single entry point, routes requests (port 4000)
 │   ├── memory-service/         # Handles memory ingestion
-│   ├── retrieval-service/      # Semantic memory retrieval
+│   ├── retrieval-service/      # Semantic similarity retrieval by userId + queryText
 │   ├── storage-service/        # Writes to Redis / MongoDB
 │   ├── embedding-service/      # Generates Ollama vector embeddings
 │   ├── classifier/             # Python service: classifies memory type
@@ -187,7 +187,7 @@ This spins up all 9 services on the shared `ai-memory-network`:
 | `classifier` | Python-based memory type classifier |
 | `storage-service` | Persists to Redis / MongoDB |
 | `embedding-service` | Generates semantic vectors via Ollama |
-| `retrieval-service` | Semantic search & retrieval |
+| `retrieval-service` | Semantic similarity search by userId + queryText |
 | `deletion-service` | Memory deletion by ID |
 | `user-service` | API key lifecycle management |
 | `scoring-service` | Relevance scoring & TTL |
@@ -239,11 +239,14 @@ console.log(result);
 // { success: true, memoryId: '69ad7bb7af2212d9b502dce9', ... }
 ```
 
-### Retrieve a Memory
+### Retrieve Similar Memories
+
+The retrieval service performs a **semantic vector similarity search** scoped to a specific user. It embeds the `queryText` and finds the most semantically relevant memory stored for that `userId`.
 
 ```js
-const memory = await client.retrieve('69ad7bb7af2212d9b502dce9');
+const memory = await client.retrieve('user_123', 'Does the user prefer dark mode?');
 console.log(memory);
+// { _id: '...', content: 'The user prefers dark mode and concise responses.', score: 0.97, ... }
 ```
 
 ### Delete a Memory
@@ -263,8 +266,38 @@ All requests go through the **API Gateway** at `https://ai-memory-engine-6uby.on
 | Method | Endpoint | Description |
 |---|---|---|
 | `POST` | `/memory-service/memory` | Ingest a new memory |
-| `GET` | `/retrieval-service/retrieve-memory/:id` | Retrieve a memory by ID |
+| `POST` | `/retrieval-service/retrieve-memory` | Retrieve the most semantically similar memory for a user |
 | `DELETE` | `/deletion-service/delete-memory/:id` | Delete a memory by ID |
+
+### POST `/retrieval-service/retrieve-memory`
+
+Finds the most semantically similar memory for a given user by embedding the query text and running a vector similarity search against that user's stored memories.
+
+**Request Body**
+
+```json
+{
+  "userId": "user_123",
+  "queryText": "Does the user prefer dark mode?"
+}
+```
+
+**Response**
+
+```json
+{
+  "_id": "69ad7bb7af2212d9b502dce9",
+  "content": "The user prefers dark mode and concise responses.",
+  "metadata": { "source": "chat" },
+  "score": 0.97,
+  "frequency": 3
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `userId` | `string` | **Required.** The user whose memories to search within |
+| `queryText` | `string` | **Required.** The natural language query to find similar memories for |
 
 ---
 
