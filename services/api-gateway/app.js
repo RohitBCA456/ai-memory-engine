@@ -3,8 +3,18 @@ import proxy from "express-http-proxy";
 import cors from "cors";
 import { config } from "./config.js";
 import { ApiResponse } from "../../shared/utilities/ApiResponse.js";
+import rateLimit from "express-rate-limit";
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: "To many request, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 
 app.use(
   cors({
@@ -14,6 +24,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+app.use(limiter);
 
 const commonProxyOptions = {
   proxyTimeout: config.timeout,
