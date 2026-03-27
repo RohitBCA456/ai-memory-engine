@@ -189,7 +189,7 @@ const sections = {
       <>
         <Section title="What is the AI Memory Engine SDK?">
           <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-            <Badge color="#6366f1">v1.0.1</Badge>
+            <Badge color="#6366f1">v1.0.5</Badge>
             <Badge color="#34d399">ESM Only</Badge>
             <Badge color="#fbbf24">ISC License</Badge>
           </div>
@@ -640,7 +640,7 @@ export default function Documentation() {
                 AI Memory Engine
               </span>
               <span className="docs-topbar-sub" style={{ color: t.textMuted, fontSize: 13 }}>SDK Docs</span>
-              <Badge color="#6366f1">v1.0.1</Badge>
+              <Badge color="#6366f1">v1.0.5</Badge>
             </div>
 
             <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
