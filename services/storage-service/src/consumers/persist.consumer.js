@@ -25,6 +25,7 @@ export const consumePersistMemory = asyncHandler(async () => {
           {
             $set: {
               lastSeenAt: new Date(),
+              content: data?.content,
             },
             $inc: { frequency: 1 },
           },

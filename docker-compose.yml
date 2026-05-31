@@ -1,29 +1,32 @@
 version: '3.8'
 
 services:
-  # 1. API Gateway (The Entry Point)
   api-gateway:
     build:
       context: .
       dockerfile: services/api-gateway/Dockerfile
     ports:
       - "4000:4000"
-    env_file: .env
+    env_file: 
+      - .env
+      - services/api-gateway/.env
     networks:
       - ai-memory-network
 
-  # 2. Ingest Service
   memory-service:
     build:
       context: .
       dockerfile: services/memory-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/memory-service/.env
     depends_on:
       - classifier
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
-  # 3. Python Classifier (Independent)
   classifier:
     build:
       context: .
@@ -33,57 +36,75 @@ services:
     networks:
       - ai-memory-network
 
-  # 4. Storage Service (Worker)
   storage-service:
     build:
       context: .
       dockerfile: services/storage-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/storage-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
-  # 5. Embedding Service (Worker)
   embedding-service:
     build:
       context: .
       dockerfile: services/embedding-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/embedding-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
-  # 6. Retrieval Service
   retrieval-service:
     build:
       context: .
       dockerfile: services/memory-retrieval-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/memory-retrieval-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
-  # 7. Deletion Service
   deletion-service:
     build:
       context: .
       dockerfile: services/memory-deletion-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/memory-deletion-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
-  # 8. User Service (API Keys)
   user-service:
     build:
       context: .
       dockerfile: services/user-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/user-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
-  # 9. Scoring Service (Worker)
   scoring-service:
     build:
       context: .
       dockerfile: services/scoring-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/scoring-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
   
@@ -91,9 +112,13 @@ services:
     build:
       context: .
       dockerfile: services/RAG-service/Dockerfile
-    env_file: .env
+    env_file: 
+      - .env
+      - services/RAG-service/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks: 
-    - ai-memory-network
+      - ai-memory-network
 
 networks:
   ai-memory-network:
