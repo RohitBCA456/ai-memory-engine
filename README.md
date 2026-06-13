@@ -83,27 +83,45 @@ The AI Memory Engine ships with a full-featured **React dashboard** (`localhost:
 
 The main dashboard provides a real-time snapshot of your memory engine: long-term memories in MongoDB, short-term context in Redis, and total operations processed. The **DocBot** assistant (bottom-right) is a RAG-powered chatbot that answers SDK questions directly from the platform documentation.
 
+![Dashboard](assets/screenshots/01-dashboard.png)
+
 > *Core Capabilities: State Persistence · Contextual Retrieval · Multi-App Bridge · Real-time Streams*
+
+### 🤖 DocBot — SDK Assistant
+
+DocBot is an AI-powered chat widget embedded in the dashboard. Ask it anything about installation, SDK methods, data models, or usage examples and it responds with accurate, context-aware answers powered by the AI Memory Engine RAG pipeline.
+
+![DocBot](assets/screenshots/02-docbot.png)
 
 ### 📚 SDK Documentation
 
 The built-in `/view-docs` page serves as a live reference for the `ai-memory-engine-sdk` (v1.0.5, ESM only, ISC License). It covers installation, SDK methods, data models, usage examples, and security FAQs — with a quick-install widget and links to GitHub and npm.
 
+![SDK Docs](assets/screenshots/03-sdk-docs.png)
+
 ### ➕ Deploy New Memory Instance
 
 The **Create App** page (`/create-app`) lets you provision an isolated memory instance for any external application. Each instance gets a name, description, and dedicated API key — generated instantly with SHA-256 encryption and auto-scaling support.
+
+![Create App](assets/screenshots/04-create-app.png)
 
 ### 🔑 Access Granted — API Key Provisioning
 
 After provisioning, the dashboard presents the unique API key for the new application. This key is used as the `x-api-key` header in all SDK and direct API calls.
 
+![Access Granted](assets/screenshots/05-access-granted.png)
+
 ### 📂 Manage Applications
 
 The **Manage Apps** page (`/manage-apps`) lists all provisioned memory instances with their creation dates. Each card links to a dedicated Memory Explorer for full telemetry.
 
+![Manage Apps](assets/screenshots/06-manage-apps.png)
+
 ### 📈 Memory Explorer — Telemetry
 
 The **Memory Explorer** (`/explorer/:appId`) visualizes memory ingestion activity over time for a specific application ID. Filters for storage tier (All Storage / Redis / MongoDB) and sort order (Newest First) make it easy to monitor usage patterns.
+
+![Memory Explorer](assets/screenshots/07-memory-explorer.png)
 
 ---
 
@@ -163,6 +181,8 @@ ai-memory-engine/
 ├── ai-memory-sdk/              # JavaScript SDK for external integration
 │   ├── index.js                # AIMemoryClient class
 │   └── test-sdk.js             # SDK integration test
+├── assets/
+│   └── screenshots/            # Dashboard & portal screenshots
 ├── shared/                     # Shared utilities across services
 ├── docker-compose.yml          # Full stack orchestration
 └── .gitignore
