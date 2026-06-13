@@ -8,6 +8,7 @@ A production-ready, **hybrid microservice backend** that gives AI applications p
 
 - [Overview](#overview)
 - [Architecture](#architecture)
+- [Frontend Portal](#frontend-portal)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -71,6 +72,38 @@ The system is composed of **9 independent microservices** orchestrated via Docke
 4. **Store** — The Storage Service writes to Redis (short-term) or MongoDB (long-term).
 5. **Score** — The Scoring Service applies relevance and TTL scoring.
 6. **Retrieve** — The Retrieval Service embeds the query text and performs vector similarity search scoped to a specific user.
+
+---
+
+## Frontend Portal
+
+The AI Memory Engine ships with a full-featured **React dashboard** (`localhost:5173`) for managing memory instances, exploring telemetry, and integrating external applications — all with a clean dark-mode UI.
+
+### 🖥️ System Overview — Dashboard
+
+The main dashboard provides a real-time snapshot of your memory engine: long-term memories in MongoDB, short-term context in Redis, and total operations processed. The **DocBot** assistant (bottom-right) is a RAG-powered chatbot that answers SDK questions directly from the platform documentation.
+
+> *Core Capabilities: State Persistence · Contextual Retrieval · Multi-App Bridge · Real-time Streams*
+
+### 📚 SDK Documentation
+
+The built-in `/view-docs` page serves as a live reference for the `ai-memory-engine-sdk` (v1.0.5, ESM only, ISC License). It covers installation, SDK methods, data models, usage examples, and security FAQs — with a quick-install widget and links to GitHub and npm.
+
+### ➕ Deploy New Memory Instance
+
+The **Create App** page (`/create-app`) lets you provision an isolated memory instance for any external application. Each instance gets a name, description, and dedicated API key — generated instantly with SHA-256 encryption and auto-scaling support.
+
+### 🔑 Access Granted — API Key Provisioning
+
+After provisioning, the dashboard presents the unique API key for the new application. This key is used as the `x-api-key` header in all SDK and direct API calls.
+
+### 📂 Manage Applications
+
+The **Manage Apps** page (`/manage-apps`) lists all provisioned memory instances with their creation dates. Each card links to a dedicated Memory Explorer for full telemetry.
+
+### 📈 Memory Explorer — Telemetry
+
+The **Memory Explorer** (`/explorer/:appId`) visualizes memory ingestion activity over time for a specific application ID. Filters for storage tier (All Storage / Redis / MongoDB) and sort order (Newest First) make it easy to monitor usage patterns.
 
 ---
 
