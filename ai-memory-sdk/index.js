@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const GATEWAY_URL = "https://ai-memory-engine-6uby.onrender.com";
-
 class AIMemoryClient {
   constructor(apiKey) {
     if (!apiKey)

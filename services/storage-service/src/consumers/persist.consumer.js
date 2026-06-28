@@ -26,6 +26,7 @@ export const consumePersistMemory = asyncHandler(async () => {
             $set: {
               lastSeenAt: new Date(),
               content: data?.content,
+              metadata: data?.metadata,
             },
             $inc: { frequency: 1 },
           },
@@ -36,6 +37,7 @@ export const consumePersistMemory = asyncHandler(async () => {
         const key = await storeToRedis(data);
         memoryId = key;
       } else {
+        await storeToRedis(data, data?.memoryId);
         memoryId = data?.memoryId;
       }
     }

@@ -1,10 +1,10 @@
 import { asyncHandler } from "../../../../shared/utilities/asyncHandler.js";
 import { redisClient } from "../../../../shared/connectors/redis.connector.js";
 
-export const storeToRedis = asyncHandler(async (data) => {
+export const storeToRedis = asyncHandler(async (data, existingKey = null) => {
   const vectorBuffer = Buffer.from(new Float32Array(data.embedding).buffer);
 
-  const key = `mem:${data.appId}:${Date.now()}`;
+  const key = existingKey || `mem:${data.appId}:${Date.now()}`;
 
   await redisClient.hSet(key, {
     content: data.content,

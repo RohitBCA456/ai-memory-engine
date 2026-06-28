@@ -9,11 +9,13 @@ import { publishScoreGenerated } from "../adapters/event.publisher.js";
 
 export const consumeMemoryEmbedding = asyncHandler(async () => {
   await consumeEvent(EVENTS.EMBEDDING_CREATED, async (data) => {
-
     if (data && data.embedding) {
       if (data.type === "short-term") {
-        const score = await generateScoreForShortTerm(data.userId, data.content);
-
+        const score = await generateScoreForShortTerm(
+          data.userId,
+          data.appId,
+          data.content,
+        );
 
         const memory = {
           ...data,
@@ -25,8 +27,11 @@ export const consumeMemoryEmbedding = asyncHandler(async () => {
 
         await publishScoreGenerated(EVENTS.MEMORY_SCORED, memory);
       } else {
-        const score = await generateScoreForLongTerm(data.userId, data.content);
-
+        const score = await generateScoreForLongTerm(
+          data.userId,
+          data.content,
+          data.appId,
+        );
 
         const memory = {
           ...data,

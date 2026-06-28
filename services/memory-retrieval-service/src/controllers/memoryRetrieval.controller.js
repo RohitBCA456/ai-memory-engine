@@ -7,30 +7,44 @@ import { findSimilarShortTerm } from "../../../../shared/utilities/shortTermMemo
 
 export const memoryRetrieval = asyncHandler(async (req, res) => {
   const { memoryId } = req.params;
-  const { content: queryText, userId } = req.body; 
+  const { content: queryText, userId } = req.body;
+  const appId = req?.appId;
+
+  console.log(`the appId is ${JSON.stringify(appId)}`);
 
   if (queryText) {
     if (!userId) {
-      return res.status(400).json({ message: "UserId is required for similarity search" });
+      return res
+        .status(400)
+        .json({ message: "UserId is required for similarity search" });
+    }
+
+    if (!appId) {
+      return res.status(400).json({
+        success: false,
+        message: "appId is required",
+      });
     }
 
     const stResults = await findSimilarShortTerm(userId, queryText);
-    
+
     if (stResults.length > 0 && stResults[0].score < 0.4) {
       return res.status(200).json({
         message: "Similar content found in Short-Term Memory",
         source: "Redis",
-        data: stResults[0]
+        data: stResults[0],
       });
     }
 
-    const ltResults = await findSimilarLongTermMemory(userId, queryText);
+    const ltResults = await findSimilarLongTermMemory(userId, queryText, appId);
+
+    console.log(`result is ${JSON.stringify(ltResults)}`);
 
     if (ltResults.length > 0) {
       return res.status(200).json({
         message: "Similar content found in Long-Term Memory",
         source: "MongoDB",
-        data: ltResults[0]
+        data: ltResults[0],
       });
     }
 
