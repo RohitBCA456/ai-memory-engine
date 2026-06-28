@@ -130,6 +130,8 @@ ai-memory-engine/
 ├── ai-memory-sdk/              # JavaScript SDK for external integration
 │   ├── index.js                # AIMemoryClient class
 │   └── test-sdk.js             # SDK integration test
+├── assets/
+│   └── screenshots/            # Dashboard & portal screenshots
 ├── shared/                     # Shared utilities across services
 ├── docker-compose.yml          # Full stack orchestration
 └── .gitignore
