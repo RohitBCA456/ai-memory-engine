@@ -1,13 +1,14 @@
-version: '3.8'
+version: "3.8"
 
 services:
   api-gateway:
     build:
       context: .
       dockerfile: services/api-gateway/Dockerfile
+    image: api-gateway-service:latest
     ports:
       - "4000:4000"
-    env_file: 
+    env_file:
       - .env
       - services/api-gateway/.env
     networks:
@@ -17,13 +18,12 @@ services:
     build:
       context: .
       dockerfile: services/memory-service/Dockerfile
-    env_file: 
+    image: memory-service:latest
+    env_file:
       - .env
       - services/memory-service/.env
     depends_on:
       - classifier
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
@@ -31,6 +31,7 @@ services:
     build:
       context: .
       dockerfile: services/classifier/Dockerfile
+    image: classifier-service:latest
     environment:
       - PORT=5001
     networks:
@@ -40,11 +41,10 @@ services:
     build:
       context: .
       dockerfile: services/storage-service/Dockerfile
-    env_file: 
+    image: storage-service:latest
+    env_file:
       - .env
       - services/storage-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
@@ -52,11 +52,10 @@ services:
     build:
       context: .
       dockerfile: services/embedding-service/Dockerfile
-    env_file: 
+    image: embedding-service:latest
+    env_file:
       - .env
       - services/embedding-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
@@ -64,11 +63,10 @@ services:
     build:
       context: .
       dockerfile: services/memory-retrieval-service/Dockerfile
-    env_file: 
+    image: memory-retrieval-service:latest
+    env_file:
       - .env
       - services/memory-retrieval-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
@@ -76,11 +74,10 @@ services:
     build:
       context: .
       dockerfile: services/memory-deletion-service/Dockerfile
-    env_file: 
+    image: memory-deletion-service:latest
+    env_file:
       - .env
       - services/memory-deletion-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
@@ -88,11 +85,10 @@ services:
     build:
       context: .
       dockerfile: services/user-service/Dockerfile
-    env_file: 
+    image: user-service:latest
+    env_file:
       - .env
       - services/user-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
 
@@ -100,24 +96,29 @@ services:
     build:
       context: .
       dockerfile: services/scoring-service/Dockerfile
-    env_file: 
+    image: scoring-service:latest
+    env_file:
       - .env
       - services/scoring-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - ai-memory-network
-  
-  rag-service: 
+
+  rag-service:
     build:
       context: .
       dockerfile: services/RAG-service/Dockerfile
-    env_file: 
+    image: RAG-service:latest
+    env_file:
       - .env
       - services/RAG-service/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks: 
+    networks:
+      - ai-memory-network
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
       - ai-memory-network
 
 networks:

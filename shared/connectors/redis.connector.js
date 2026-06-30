@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
 export const redisClient = createClient({
-  url: 'redis://host.docker.internal:6379',
+  url: process.env.REDIS_URL,
 });
 
 
